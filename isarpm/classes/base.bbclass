@@ -1,0 +1,1 @@
+../../bitbake/classes/base.bbclass
