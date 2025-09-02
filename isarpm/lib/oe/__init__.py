@@ -6,4 +6,4 @@ __path__ = extend_path(__path__, __name__)
 #BBIMPORTS = ["qa", "data", "path", "utils", "types", "package", "packagedata", \
 #             "packagegroup", "sstatesig", "lsb", "cachedpath", "license", \
 #             "reproducible", "rust", "buildcfg", "go"]
-BBIMPORTS = ["path", "sstatesig"]
+BBIMPORTS = ["path", "utils", "sstatesig"]

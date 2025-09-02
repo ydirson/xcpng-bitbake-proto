@@ -13,3 +13,11 @@ do_package() {
 do_package[network] = "1"
 
 addtask package after do_unpack
+
+SSTATETASKS += "do_package"
+do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
+
+python do_package_setscene () {
+    sstate_setscene(d)
+}
+addtask do_package_setscene
