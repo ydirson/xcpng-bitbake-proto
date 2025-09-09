@@ -2,11 +2,13 @@ DEPENDS ?= ""
 
 # produces ${WORKDIR}/SRPMS and ${WORKDIR}/RPMS
 do_package() {
-    xcp-ng-dev container build "${S}" 9.0 \
+    # FIXME: command should be provided by build-env.class
+    env XCPNG_OCI_RUNNER=podman xcp-ng-dev container build 9.0 "${S}" \
         --no-update --disablerepo=xcpng \
-        --rm --platform=linux/amd64 \
+        --platform=linux/amd64 \
         --output-dir=${WORKDIR}
 }
+do_package[depends] = "build-env:do_create"
 # FIXME: disabling network access through a user namespace currently
 # prevents podman from starting, bitbake likely needs to learn.  See
 # https://github.com/containers/podman/issues/15238
