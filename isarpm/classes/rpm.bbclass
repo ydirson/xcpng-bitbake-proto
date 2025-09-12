@@ -1,20 +1,35 @@
 DEPENDS ?= ""
 
+# FIXME: xcp-ng-dev commands should be provided by build-env.class
+
+# FIXME we want to share this under DL_DIR, but then only pass the
+# requested ones to do_package
+BUILDDEPS = "${WORKDIR}/build-deps"
+
+do_fetch_upstream_builddeps() {
+    env XCPNG_OCI_RUNNER=podman xcp-ng-dev container builddep "9.0" "${BUILDDEPS}" "${S}" \
+        --debug \
+        --no-update --disablerepo=xcpng
+}
+do_fetch_upstream_builddeps[network] = "1"
+
+addtask fetch_upstream_builddeps after do_unpack
+
+# SSTATETASKS += "do_fetch_upstream_builddeps"
+# do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
+
+
 # produces ${WORKDIR}/SRPMS and ${WORKDIR}/RPMS
 do_package() {
-    # FIXME: command should be provided by build-env.class
-    env XCPNG_OCI_RUNNER=podman xcp-ng-dev container build 9.0 "${S}" \
-        --no-update --disablerepo=xcpng \
-        --platform=linux/amd64 \
-        --output-dir=${WORKDIR}
+    env XCPNG_OCI_RUNNER=podman xcp-ng-dev container build "9.0" "${S}" \
+        --debug \
+        --no-network --no-update --disablerepo="*" \
+        --builddep-dir="${BUILDDEPS}" --enablerepo=builddeps \
+        --output-dir="${WORKDIR}"
 }
 do_package[depends] = "build-env:do_create"
-# FIXME: disabling network access through a user namespace currently
-# prevents podman from starting, bitbake likely needs to learn.  See
-# https://github.com/containers/podman/issues/15238
-do_package[network] = "1"
 
-addtask package after do_unpack
+addtask package after do_fetch_upstream_builddeps
 
 SSTATETASKS += "do_package"
 do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
