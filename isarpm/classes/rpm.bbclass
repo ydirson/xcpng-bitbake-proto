@@ -5,15 +5,10 @@ RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
 
 # FIXME: xcp-ng-dev commands should be provided by build-env.class
 
-BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
+
 BUILDDEPS_MANAGED_REPONAME = "bdeps-managed"
-# FIXME we want to share this under DL_DIR, but then only pass the
-# requested ones to do_package
-BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
 BUILDDEPS_MANAGED = "${WORKDIR}/${BUILDDEPS_MANAGED_REPONAME}"
 
-# inspired by staging.bbclass::extend_recipe_sysroot()
-# FIXME: lots more of inspiration needed from there
 do_prepare_managed_builddeps() {
     rm -rf "${BUILDDEPS_MANAGED}"
     mkdir -p "${BUILDDEPS_MANAGED}"
@@ -26,6 +21,12 @@ addtask do_prepare_managed_builddeps after do_unpack
 do_prepare_managed_builddeps[deptask] = "do_deploy"
 do_prepare_managed_builddeps[vardepsexclude] += "PACKAGE_EXTRA_ARCHS BB_TASKDEPDATA"
 
+BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
+# FIXME we want to share this under DL_DIR, but then only pass the
+# requested ones to do_package
+BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
+
+# FIXME: this makes a copy of managed (and extra) builddeps
 do_fetch_upstream_builddeps() {
     env XCPNG_OCI_RUNNER=podman xcp-ng-dev container builddep "9.0" "${BUILDDEPS_UPSTREAM}" "${S}" \
         --debug \
