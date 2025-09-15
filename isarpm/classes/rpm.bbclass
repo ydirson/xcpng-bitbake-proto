@@ -54,6 +54,8 @@ BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
 BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
 
 # FIXME: this makes a copy of managed (and extra) builddeps
+# Should ask dnf only for URLs?  dnf-builddep does not have --url like dnf-download :(
+# Use "rpmbuild -bd" and dnf-download?
 do_fetch_upstream_builddeps() {
     env XCPNG_OCI_RUNNER=podman xcp-ng-dev container builddep "9.0" "${BUILDDEPS_UPSTREAM}" "${S}" \
         --debug \
