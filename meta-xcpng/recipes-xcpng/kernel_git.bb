@@ -1,7 +1,11 @@
 inherit xcp-ng-rpm
 
 SRCREV = "57136bc003e3d1b6cec7c4b7c9f89ce3b69bac82"
-XCPNGDEV_BUILD_OPTS = "--rpmbuild-opts=--nodebuginfo"
+XCPNGDEV_BUILD_OPTS = " \
+  --rpmbuild-opts='--with baseonly' \
+  --rpmbuild-opts='--without debuginfo' \
+  --rpmbuild-opts='--without kabichk' \
+"
 
 # FIXME: should be infered from `sources` by specific class, use MIRRORS, etc.
 # sed 's,.*(\(.*\)) = \(.*\),https://sources.almalinux.org/\2;unpack=0;downloadfilename=\1;name=\1 \\,' sources 
