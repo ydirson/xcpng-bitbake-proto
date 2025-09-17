@@ -72,6 +72,8 @@ addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
 # do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
 
 
+XCPNGDEV_BUILD_OPTS ?= ""
+
 # produces ${WORKDIR}/SRPMS and ${WORKDIR}/RPMS
 # FIXME: lacks parallel building
 do_package() {
@@ -81,7 +83,8 @@ do_package() {
         --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
         ${EXTRA_BUILD_FLAGS} \
         --local-repo="${BUILDDEPS_UPSTREAM}" --enablerepo="${BUILDDEPS_UPSTREAM_REPONAME}" \
-        --output-dir="${WORKDIR}"
+        --output-dir="${WORKDIR}" \
+        ${XCPNGDEV_BUILD_OPTS}
 }
 do_package[depends] = "build-env:do_create"
 
