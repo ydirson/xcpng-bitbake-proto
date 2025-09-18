@@ -75,7 +75,8 @@ addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
 XCPNGDEV_BUILD_OPTS ?= ""
 
 # produces ${WORKDIR}/SRPMS and ${WORKDIR}/RPMS
-# FIXME: lacks parallel building
+# FIXME: lacks control of parallel building?
+# FIXME: set _topdir to ${WORKDIR} to stop polluting source
 do_package() {
     env XCPNG_OCI_RUNNER=podman xcp-ng-dev container build "9.0" "${S}" \
         --debug \
