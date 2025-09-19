@@ -54,15 +54,36 @@ BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
 # requested ones to do_package
 BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
 
-# FIXME: this makes a copy of managed (and extra) builddeps
-# Should ask dnf only for URLs?  dnf-builddep does not have --url like dnf-download :(
-# Use "rpmbuild -bd" and dnf-download?
+# FIXME: managed RPM pulled by an upstream one will be missed
+# FIXME: may need "rpmbuild -bd" as well for dynamic builddeps
 do_fetch_upstream_builddeps() {
-    env XCPNG_OCI_RUNNER=podman xcp-ng-dev container builddep "9.0" "${BUILDDEPS_UPSTREAM}" "${S}" \
-        --debug \
-        --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
-        ${EXTRA_BUILD_FLAGS} \
-        --no-update --disablerepo=xcpng        
+    BASE_S=$(basename ${S})
+    SPEC=SPECS/${PN}.spec
+    [ -r "${S}/$SPEC" ] || SPEC=${PN}.spec
+    [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
+
+    URLS=$(
+        env XCPNG_OCI_RUNNER=podman xcp-ng-dev container run \
+                --debug \
+                --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
+                ${EXTRA_BUILD_FLAGS} \
+                --no-update --disablerepo=xcpng \
+                -d "${S}" \
+                -v ${LAYERDIR_isarpm}/libexec/get-build-deps-urls.sh:/external/get-build-deps-urls.sh \
+            "9.0" \
+            -- /external/get-build-deps-urls.sh /external/${BASE_S}/${SPEC} /external/${BASE_S}
+    )
+
+    # FIXME use DL cache
+    rm -rf "${BUILDDEPS_UPSTREAM}"
+    mkdir -p "${BUILDDEPS_UPSTREAM}"
+    for url in $URLS; do
+        case "$url" in
+            file://*) continue ;; # skip files we provide in local repos
+        esac
+        curl --silent --show-error --fail --location \
+             --output-dir "${BUILDDEPS_UPSTREAM}" --remote-name "$url"
+    done
 }
 do_fetch_upstream_builddeps[network] = "1"
 do_fetch_upstream_builddeps[depends] = "build-env:do_create"
