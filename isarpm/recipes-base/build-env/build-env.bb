@@ -21,3 +21,9 @@ do_create() {
 do_create[network] = "1"
 
 addtask create after do_unpack
+
+
+# default target
+do_build() {
+}
+addtask do_build after do_create
