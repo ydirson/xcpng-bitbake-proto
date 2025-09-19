@@ -6,5 +6,6 @@ DEPENDS += " \
   ocaml \
   xen \
   xs-opam-repo \
+  blktap \
   sm \
 "
