@@ -108,7 +108,7 @@ do_deploy() {
 addtask do_deploy after do_package
 
 
-# default target, FIXME should do more stuff
+# default target
 do_build() {
 }
 addtask do_build after do_deploy
