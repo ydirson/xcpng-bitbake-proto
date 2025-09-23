@@ -4,6 +4,7 @@ DEPLOY_DIR_ISARPM = "${DEPLOY_DIR}/rpms"
 RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
 
 # FIXME: xcp-ng-dev commands should be provided by build-env.class
+XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 
 
 BUILDDEPS_MANAGED_REPONAME = "bdeps-managed"
@@ -63,7 +64,7 @@ do_fetch_upstream_builddeps() {
     [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
 
     URLS=$(
-        env XCPNG_OCI_RUNNER=podman xcp-ng-dev container run \
+        env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
                 --debug \
                 --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
                 ${EXTRA_BUILD_FLAGS} \
@@ -86,7 +87,7 @@ do_fetch_upstream_builddeps() {
     done
 }
 do_fetch_upstream_builddeps[network] = "1"
-do_fetch_upstream_builddeps[depends] = "build-env:do_create"
+do_fetch_upstream_builddeps[depends] = "build-env:do_build"
 
 addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
 
@@ -100,7 +101,7 @@ XCPNGDEV_BUILD_OPTS ?= ""
 # FIXME: lacks control of parallel building?
 # FIXME: set _topdir to ${WORKDIR} to stop polluting source
 do_package() {
-    env XCPNG_OCI_RUNNER=podman xcp-ng-dev container build "9.0" "${S}" \
+    env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container build "9.0" "${S}" \
         --debug \
         --no-network --no-update --disablerepo="*" \
         --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
@@ -109,7 +110,7 @@ do_package() {
         --output-dir="${WORKDIR}" \
         ${XCPNGDEV_BUILD_OPTS}
 }
-do_package[depends] = "build-env:do_create"
+do_package[depends] = "build-env:do_build"
 
 addtask do_package after do_fetch_upstream_builddeps
 
