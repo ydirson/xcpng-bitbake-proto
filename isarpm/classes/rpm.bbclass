@@ -9,6 +9,7 @@ RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
 BUILDDEPS_MANAGED_REPONAME = "bdeps-managed"
 BUILDDEPS_MANAGED = "${WORKDIR}/${BUILDDEPS_MANAGED_REPONAME}"
 
+# FIXME: indirect managed builddeps missed, needs DEPENDS
 do_prepare_managed_builddeps() {
     rm -rf "${BUILDDEPS_MANAGED}"
     mkdir -p "${BUILDDEPS_MANAGED}"
@@ -100,6 +101,7 @@ python do_package_setscene () {
 addtask do_package_setscene
 
 
+# FIXME: should be removed by do_clean?
 do_deploy() {
     rm -rf "${RECIPE_DEPLOY_DIR}"
     mkdir -p "${RECIPE_DEPLOY_DIR}"
