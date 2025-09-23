@@ -12,6 +12,7 @@ SRCREV = "94beaba634fbfa80756cc5e7d5a72132f71fe838"
 # FIXME: this ought to be "${WORKDIR}/git", what's wrong with unpack?
 S = "${UNPACKDIR}/git"
 
+
 do_create() {
     env XCPNG_OCI_RUNNER=podman ${S}/container/build.sh --bootstrap 9.0
 }
