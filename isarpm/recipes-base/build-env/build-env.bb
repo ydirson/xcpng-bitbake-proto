@@ -40,3 +40,7 @@ addtask deploy after do_unpack
 do_build() {
 }
 addtask do_build after do_create do_deploy
+# override bitbake_base.bbclass
+python() {
+    d.delVarFlag("do_build", "nostamp")
+}
