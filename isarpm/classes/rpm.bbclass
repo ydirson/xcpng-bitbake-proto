@@ -1,4 +1,5 @@
 DEPENDS ?= ""
+RDEPENDS ?= ""
 
 DEPLOY_DIR_ISARPM = "${DEPLOY_DIR}/rpms"
 RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
@@ -136,3 +137,7 @@ addtask do_deploy after do_package
 do_build() {
 }
 addtask do_build after do_deploy
+# override bitbake_base.bbclass
+python() {
+    d.delVarFlag("do_build", "nostamp")
+}
