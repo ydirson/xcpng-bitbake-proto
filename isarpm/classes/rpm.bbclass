@@ -133,6 +133,19 @@ do_deploy() {
 addtask do_deploy after do_package
 
 
+do_test() {
+    for rpm in ${WORKDIR}/RPMS/*.rpm; do
+        env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                --debug \
+                --no-network --no-update --disablerepo="*" \
+                --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
+            "9.0" \
+            -- sudo dnf install -y rpm
+    done
+}
+addtask do_test after do_package
+
+
 # default target
 do_build() {
 }
