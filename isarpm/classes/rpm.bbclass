@@ -103,6 +103,7 @@ XCPNGDEV_BUILD_OPTS ?= ""
 # FIXME: lacks control of parallel building?
 # FIXME: set _topdir to ${WORKDIR} to stop polluting source
 do_package() {
+    rm -rf ${WORKDIR}/RPMS ${WORKDIR}/SRPMS
     env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container build "9.0" "${S}" \
         --bootstrap \
         --debug \
