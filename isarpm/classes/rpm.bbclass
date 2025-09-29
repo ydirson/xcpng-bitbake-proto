@@ -138,6 +138,7 @@ addtask do_deploy after do_package
 do_test() {
     for rpm in ${WORKDIR}/RPMS/*.rpm; do
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                --bootstrap \
                 --debug \
                 --no-network --no-update --disablerepo="*" \
                 --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
