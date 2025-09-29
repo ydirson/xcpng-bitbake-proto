@@ -66,6 +66,7 @@ do_fetch_upstream_builddeps() {
 
     URLS=$(
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                --bootstrap \
                 --debug \
                 --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
                 ${EXTRA_BUILD_FLAGS} \
@@ -103,6 +104,7 @@ XCPNGDEV_BUILD_OPTS ?= ""
 # FIXME: set _topdir to ${WORKDIR} to stop polluting source
 do_package() {
     env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container build "9.0" "${S}" \
+        --bootstrap \
         --debug \
         --no-network --no-update --disablerepo="*" \
         --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
