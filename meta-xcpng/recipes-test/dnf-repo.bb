@@ -1,5 +1,6 @@
 DEPENDS = " \
   branding-xcp-ng \
+  xcp-ng-release \
 "
 
 TESTREPO_NAME = "xcp-test"
@@ -19,13 +20,16 @@ do_deploy[deptask] = "do_deploy"
 XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 do_test() {
     for dep in ${DEPENDS}; do
-        env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
-                --bootstrap \
-                --debug \
-                --no-network --no-update --disablerepo="*" \
-                --local-repo="${TESTREPO_DIR}" --enablerepo="${TESTREPO_NAME}" \
-            "9.0" \
-            -- sudo dnf install -y $dep
+        for rpm in ${DEPLOY_DIR}/rpms/$dep/RPMS/*/*.rpm; do
+            rpm=$(basename $rpm .rpm)
+            env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                    --bootstrap \
+                    --debug \
+                    --no-network --no-update --disablerepo="*" \
+                    --local-repo="${TESTREPO_DIR}" --enablerepo="${TESTREPO_NAME}" \
+                "9.0" \
+                -- sudo dnf install -y $rpm
+        done
     done
 }
 addtask do_test after do_deploy
