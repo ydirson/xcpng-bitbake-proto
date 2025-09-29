@@ -1,5 +1,5 @@
 inherit xcp-ng-rpm
 
-SRCREV = "5012b797d0c8afe23ab76dee14bdd759ec227178"
+SRCREV = "3ad41ad7d6a711b78dba93b8d2618924c7e505ec"
 
 DEPENDS = "branding-xcp-ng"
