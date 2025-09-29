@@ -20,6 +20,7 @@ XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 do_test() {
     for dep in ${DEPENDS}; do
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                --bootstrap \
                 --debug \
                 --no-network --no-update --disablerepo="*" \
                 --local-repo="${TESTREPO_DIR}" --enablerepo="${TESTREPO_NAME}" \
