@@ -149,17 +149,20 @@ addtask do_deploy after do_package
 
 
 do_test() {
-    for rpm in ${WORKDIR}/RPMS/*.rpm; do
+    for rpm in ${WORKDIR}/RPMS/*/*.rpm; do
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
                 --bootstrap \
                 --debug \
                 --no-network --no-update --disablerepo="*" \
                 --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
             "9.0" \
-            -- sudo dnf install -y rpm
+            -- sudo dnf install -y $(basename $rpm .rpm)
     done
 }
 addtask do_test after do_package
+# FIXME: for some reason podman "cannot set up namespace"
+# ... but this is mitigated by repo disabling
+do_test[network] = "1"
 
 
 # default target
