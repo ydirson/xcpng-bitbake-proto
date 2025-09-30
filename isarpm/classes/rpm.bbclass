@@ -29,14 +29,14 @@ do_collect_managed_builddeps[vardepsexclude] += "PACKAGE_EXTRA_ARCHS BB_TASKDEPD
 
 ## FIXME: hack to rely on RPMs from Fedora etc until they reach EPEL10
 # URLs of RPMs not yet in our official upstream
-EXTRA_UPSTREAM = ""
+EXTRA_UPSTREAM_DEPENDS = ""
 
 BUILDDEPS_EXTRA_REPONAME = "bdeps-extra"
 BUILDDEPS_EXTRA = "${WORKDIR}/${BUILDDEPS_EXTRA_REPONAME}"
 
 do_fetch_extra_upstream_builddeps() {
     mkdir -p "${BUILDDEPS_EXTRA}"
-    for rpm in ${EXTRA_UPSTREAM}; do
+    for rpm in ${EXTRA_UPSTREAM_DEPENDS}; do
         wget --directory-prefix="${BUILDDEPS_EXTRA}" $rpm
     done
 }
@@ -44,7 +44,7 @@ do_fetch_extra_upstream_builddeps[network] = "1"
 
 # only create this task if needed
 python() {
-    if d.getVar("EXTRA_UPSTREAM"):
+    if d.getVar("EXTRA_UPSTREAM_DEPENDS"):
         bb.build.addtask("do_fetch_extra_upstream_builddeps", "do_fetch_upstream_builddeps", "do_collect_managed_builddeps", d)
         BUILDDEPS_EXTRA = d.getVar("BUILDDEPS_EXTRA")
         BUILDDEPS_EXTRA_REPONAME = d.getVar("BUILDDEPS_EXTRA_REPONAME")
