@@ -14,7 +14,7 @@ BUILDDEPS_MANAGED_REPONAME = "bdeps-managed"
 BUILDDEPS_MANAGED = "${WORKDIR}/${BUILDDEPS_MANAGED_REPONAME}"
 
 # FIXME: indirect managed builddeps missed, needs DEPENDS
-do_prepare_managed_builddeps() {
+do_collect_managed_builddeps() {
     rm -rf "${BUILDDEPS_MANAGED}"
     mkdir -p "${BUILDDEPS_MANAGED}"
     for dep in ${DEPENDS}; do
@@ -22,9 +22,9 @@ do_prepare_managed_builddeps() {
     done
     #createrepo_c --compatibility "${BUILDDEPS_MANAGED}"
 }
-addtask do_prepare_managed_builddeps after do_unpack
-do_prepare_managed_builddeps[deptask] = "do_deploy"
-do_prepare_managed_builddeps[vardepsexclude] += "PACKAGE_EXTRA_ARCHS BB_TASKDEPDATA"
+addtask do_collect_managed_builddeps after do_unpack
+do_collect_managed_builddeps[deptask] = "do_deploy"
+do_collect_managed_builddeps[vardepsexclude] += "PACKAGE_EXTRA_ARCHS BB_TASKDEPDATA"
 
 
 ## FIXME: hack to rely on RPMs from Fedora etc until they reach EPEL10
@@ -45,13 +45,14 @@ do_fetch_extra_upstream_builddeps[network] = "1"
 # only create this task if needed
 python() {
     if d.getVar("EXTRA_UPSTREAM"):
-        bb.build.addtask("do_fetch_extra_upstream_builddeps", "do_fetch_upstream_builddeps", "do_prepare_managed_builddeps", d)
+        bb.build.addtask("do_fetch_extra_upstream_builddeps", "do_fetch_upstream_builddeps", "do_collect_managed_builddeps", d)
         BUILDDEPS_EXTRA = d.getVar("BUILDDEPS_EXTRA")
         BUILDDEPS_EXTRA_REPONAME = d.getVar("BUILDDEPS_EXTRA_REPONAME")
         d.setVar("EXTRA_BUILD_FLAGS", f"--local-repo='{BUILDDEPS_EXTRA}' --enablerepo='{BUILDDEPS_EXTRA_REPONAME}'")
     else:
         d.setVar("EXTRA_BUILD_FLAGS", "")
 }
+
 
 BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
 # FIXME we want to share this under DL_DIR, but then only pass the
@@ -99,7 +100,7 @@ do_fetch_upstream_builddeps() {
 do_fetch_upstream_builddeps[network] = "1"
 do_fetch_upstream_builddeps[depends] = "build-env:do_deploy build-env:${@'do_create_bootstrap' if ${PACKAGE_NEEDS_BOOTSTRAP} else 'do_create' }"
 
-addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
+addtask do_fetch_upstream_builddeps after do_collect_managed_builddeps
 
 # SSTATETASKS += "do_fetch_upstream_builddeps"
 # do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
