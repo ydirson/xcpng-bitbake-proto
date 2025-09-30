@@ -139,6 +139,73 @@ python do_package_setscene () {
 addtask do_package_setscene
 
 
+RDEPS_MANAGED_REPONAME = "rdeps-managed"
+RDEPS_MANAGED = "${WORKDIR}/${RDEPS_MANAGED_REPONAME}"
+
+do_collect_managed_rdeps() {
+    rm -rf "${RDEPS_MANAGED}"
+    mkdir -p "${RDEPS_MANAGED}"
+    for dep in ${RDEPENDS}; do
+        cp -a "${DEPLOY_DIR_ISARPM}/${dep}/RPMS" "${RDEPS_MANAGED}/${dep}"
+    done
+    createrepo_c --compatibility "${RDEPS_MANAGED}"
+}
+addtask do_collect_managed_rdeps after do_package
+
+
+# FIXME: may need filling
+EXTRA_RUN_FLAGS = ""
+
+RDEPS_UPSTREAM_REPONAME = "rdeps-upstream"
+# FIXME we want to share this under DL_DIR, but then only pass the
+# requested ones to do_package
+RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
+
+do_fetch_upstream_rdeps() {
+    BASE_S=$(basename ${S})
+    SPEC=SPECS/${PN}.spec
+    [ -r "${S}/$SPEC" ] || SPEC=${PN}.spec
+    [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
+
+    # FIXME should be an anynomous python block not copypasta
+    case ${PACKAGE_NEEDS_BOOTSTRAP} in
+    0) maybe_bootstrap= ;;
+    1) maybe_bootstrap=--bootstrap ;;
+    esac
+
+    URLS=$(
+        set -o pipefail # FIXME bashism?
+        for rpm in ${WORKDIR}/RPMS/*/*.rpm; do
+            rpm=$(basename $rpm .rpm)
+            env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                    $maybe_bootstrap \
+                    --debug \
+                    --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
+                    --local-repo="${RDEPS_MANAGED}" --enablerepo="${RDEPS_MANAGED_REPONAME}" \
+                    ${EXTRA_RUN_FLAGS} \
+                    --no-update --disablerepo=xcpng \
+                "9.0" \
+                -- dnf download --quiet --resolve --urls $rpm
+        done | sort -u
+    )
+
+    # FIXME use DL cache
+    rm -rf "${RDEPS_UPSTREAM}"
+    mkdir -p "${RDEPS_UPSTREAM}"
+    for url in $URLS; do
+        case "$url" in
+            file://*) continue ;; # skip files we provide in local repos, including rpms from this recipe
+        esac
+        curl --silent --show-error --fail --location \
+             --output-dir "${RDEPS_UPSTREAM}" --remote-name "$url"
+    done
+}
+do_fetch_upstream_rdeps[network] = "1"
+do_fetch_upstream_rdeps[depends] = "build-env:do_deploy build-env:${@'do_create_bootstrap' if ${PACKAGE_NEEDS_BOOTSTRAP} else 'do_create' }"
+
+addtask do_fetch_upstream_rdeps after do_collect_managed_rdeps
+
+
 # FIXME: should be removed by do_clean?
 do_deploy() {
     rm -rf "${RECIPE_DEPLOY_DIR}"
@@ -155,11 +222,13 @@ do_test() {
                 --debug \
                 --no-network --no-update --disablerepo="*" \
                 --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
+                --local-repo="${PN}-rdeps-managed:${RDEPS_MANAGED}" --enablerepo="${PN}-rdeps-managed" \
+                --local-repo="${PN}-rdeps-upstream:${RDEPS_UPSTREAM}" --enablerepo="${PN}-rdeps-upstream" \
             "9.0" \
             -- sudo dnf install -y $(basename $rpm .rpm)
     done
 }
-addtask do_test after do_package
+addtask do_test after do_fetch_upstream_rdeps
 # FIXME: for some reason podman "cannot set up namespace"
 # ... but this is mitigated by repo disabling
 do_test[network] = "1"
