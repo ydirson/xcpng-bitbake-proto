@@ -1,5 +1,6 @@
 DEPENDS ?= ""
 RDEPENDS ?= ""
+XCPNGDEV_BUILD_OPTS ?= ""
 
 DEPLOY_DIR_ISARPM = "${DEPLOY_DIR}/rpms"
 RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
@@ -96,8 +97,6 @@ addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
 # SSTATETASKS += "do_fetch_upstream_builddeps"
 # do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
 
-
-XCPNGDEV_BUILD_OPTS ?= ""
 
 # produces ${WORKDIR}/SRPMS and ${WORKDIR}/RPMS
 # FIXME: lacks control of parallel building?
