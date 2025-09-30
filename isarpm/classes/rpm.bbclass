@@ -249,6 +249,7 @@ do_test() {
                 --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
                 --local-repo="${PN}-rdeps-managed:${RDEPS_MANAGED}" --enablerepo="${PN}-rdeps-managed" \
                 --local-repo="${PN}-rdeps-upstream:${RDEPS_UPSTREAM}" --enablerepo="${PN}-rdeps-upstream" \
+                ${EXTRA_RUN_FLAGS} \
             "9.0" \
             -- sudo dnf install -y $(basename $rpm .rpm)
     done
