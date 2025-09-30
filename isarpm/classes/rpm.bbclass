@@ -154,8 +154,32 @@ do_collect_managed_rdeps() {
 addtask do_collect_managed_rdeps after do_package
 
 
-# FIXME: may need filling
-EXTRA_RUN_FLAGS = ""
+## FIXME: hack to rely on RPMs from Fedora etc until they reach EPEL10
+# URLs of RPMs not yet in our official upstream
+EXTRA_UPSTREAM_RDEPENDS = ""
+
+RDEPENDS_EXTRA_REPONAME = "rdeps-extra"
+RDEPENDS_EXTRA = "${WORKDIR}/${RDEPENDS_EXTRA_REPONAME}"
+
+do_fetch_extra_upstream_rdepends() {
+    mkdir -p "${RDEPENDS_EXTRA}"
+    for rpm in ${EXTRA_UPSTREAM_RDEPENDS}; do
+        wget --directory-prefix="${RDEPENDS_EXTRA}" $rpm
+    done
+}
+do_fetch_extra_upstream_rdepends[network] = "1"
+
+# only create this task if needed
+python() {
+    if d.getVar("EXTRA_UPSTREAM_RDEPENDS"):
+        bb.build.addtask("do_fetch_extra_upstream_rdepends", "do_fetch_upstream_rdeps", "do_collect_managed_rdeps", d)
+        RDEPENDS_EXTRA = d.getVar("RDEPENDS_EXTRA")
+        RDEPENDS_EXTRA_REPONAME = d.getVar("RDEPENDS_EXTRA_REPONAME")
+        d.setVar("EXTRA_RUN_FLAGS", f"--local-repo='{RDEPENDS_EXTRA}' --enablerepo='{RDEPENDS_EXTRA_REPONAME}'")
+    else:
+        d.setVar("EXTRA_RUN_FLAGS", "")
+}
+
 
 RDEPS_UPSTREAM_REPONAME = "rdeps-upstream"
 # FIXME we want to share this under DL_DIR, but then only pass the
