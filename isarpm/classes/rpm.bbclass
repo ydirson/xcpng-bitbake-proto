@@ -210,9 +210,9 @@ addtask do_fetch_upstream_rdeps after do_collect_managed_rdeps
 do_deploy() {
     rm -rf "${RECIPE_DEPLOY_DIR}"
     mkdir -p "${RECIPE_DEPLOY_DIR}"
-    cp -a "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RECIPE_DEPLOY_DIR}/"
+    cp -a "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RDEPS_MANAGED}" "${RDEPS_UPSTREAM}" "${RECIPE_DEPLOY_DIR}/"
 }
-addtask do_deploy after do_package
+addtask do_deploy after do_fetch_upstream_rdeps
 
 
 do_test() {
