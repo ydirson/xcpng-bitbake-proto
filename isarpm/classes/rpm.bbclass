@@ -1,5 +1,6 @@
 DEPENDS ?= ""
 RDEPENDS ?= ""
+PACKAGE_NEEDS_BOOTSTRAP ?= "0"
 XCPNGDEV_BUILD_OPTS ?= ""
 
 DEPLOY_DIR_ISARPM = "${DEPLOY_DIR}/rpms"
@@ -65,9 +66,15 @@ do_fetch_upstream_builddeps() {
     [ -r "${S}/$SPEC" ] || SPEC=${PN}.spec
     [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
 
+    # FIXME should be an anynomous python block not copypasta
+    case ${PACKAGE_NEEDS_BOOTSTRAP} in
+    0) maybe_bootstrap= ;;
+    1) maybe_bootstrap=--bootstrap ;;
+    esac
+
     URLS=$(
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
-                --bootstrap \
+                $maybe_bootstrap \
                 --debug \
                 --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
                 ${EXTRA_BUILD_FLAGS} \
@@ -90,7 +97,7 @@ do_fetch_upstream_builddeps() {
     done
 }
 do_fetch_upstream_builddeps[network] = "1"
-do_fetch_upstream_builddeps[depends] = "build-env:do_build"
+do_fetch_upstream_builddeps[depends] = "build-env:do_deploy build-env:${@'do_create_bootstrap' if ${PACKAGE_NEEDS_BOOTSTRAP} else 'do_create' }"
 
 addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
 
@@ -103,8 +110,14 @@ addtask do_fetch_upstream_builddeps after do_prepare_managed_builddeps
 # FIXME: set _topdir to ${WORKDIR} to stop polluting source
 do_package() {
     rm -rf ${WORKDIR}/RPMS ${WORKDIR}/SRPMS
+
+    case ${PACKAGE_NEEDS_BOOTSTRAP} in
+    0) maybe_bootstrap= ;;
+    1) maybe_bootstrap=--bootstrap ;;
+    esac
+
     env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container build "9.0" "${S}" \
-        --bootstrap \
+        $maybe_bootstrap \
         --debug \
         --no-network --no-update --disablerepo="*" \
         --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
@@ -114,7 +127,6 @@ do_package() {
         ${XCPNGDEV_BUILD_OPTS}
     createrepo_c --compatibility ${WORKDIR}/RPMS
 }
-do_package[depends] = "build-env:do_build"
 
 addtask do_package after do_fetch_upstream_builddeps
 
