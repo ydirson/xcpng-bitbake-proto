@@ -140,6 +140,8 @@ python do_package_setscene () {
 addtask do_package_setscene
 
 
+# note we don't bother separating RDEPENDS of each binary package, we
+# store all those of a given source package together
 RDEPS_MANAGED_REPONAME = "rdeps-managed"
 RDEPS_MANAGED = "${WORKDIR}/${RDEPS_MANAGED_REPONAME}"
 
@@ -152,6 +154,15 @@ do_collect_managed_rdeps() {
     createrepo_c --compatibility "${RDEPS_MANAGED}"
 }
 addtask do_collect_managed_rdeps after do_package
+
+# Bitbake does not manage the binary packages so will not make use of
+# RDEPENDS by itself, we have to add the dependencies ourselves.
+# Would otherwisw likely be:
+#   do_collect_managed_rdeps[rdeptask] = "do_deploy"
+python() {
+    taskrdeps = ' '.join(f"{dep}:do_deploy" for dep in d.getVar("RDEPENDS").split())
+    d.setVarFlag("do_collect_managed_rdeps", "depends", taskrdeps)
+}
 
 
 ## FIXME: hack to rely on RPMs from Fedora etc until they reach EPEL10
