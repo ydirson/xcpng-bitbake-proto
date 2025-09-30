@@ -113,6 +113,7 @@ do_package() {
         --local-repo="${BUILDDEPS_UPSTREAM}" --enablerepo="${BUILDDEPS_UPSTREAM_REPONAME}" \
         --output-dir="${WORKDIR}" \
         ${XCPNGDEV_BUILD_OPTS}
+    createrepo_c --compatibility ${WORKDIR}/RPMS
 }
 do_package[depends] = "build-env:do_build"
 
