@@ -197,6 +197,8 @@ RDEPS_UPSTREAM_REPONAME = "rdeps-upstream"
 # requested ones to do_package
 RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
 
+# FIXME: find a way to collect errors from all RPMs in a single run, rather
+# than stopping on first error
 do_fetch_upstream_rdeps() {
     BASE_S=$(basename ${S})
     SPEC=SPECS/${PN}.spec
