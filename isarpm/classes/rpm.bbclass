@@ -13,12 +13,17 @@ XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 BUILDDEPS_MANAGED_REPONAME = "bdeps-managed"
 BUILDDEPS_MANAGED = "${WORKDIR}/${BUILDDEPS_MANAGED_REPONAME}"
 
-# FIXME: indirect managed builddeps missed, needs DEPENDS
+# FIXME: lacks rdeps of bdeps
 do_collect_managed_builddeps() {
     rm -rf "${BUILDDEPS_MANAGED}"
     mkdir -p "${BUILDDEPS_MANAGED}"
     for dep in ${DEPENDS}; do
-        cp -a "${DEPLOY_DIR_ISARPM}/${dep}/RPMS" "${BUILDDEPS_MANAGED}/${dep}"
+        mkdir -p ${BUILDDEPS_MANAGED}/${dep}
+        for rpmdir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
+            if [ -d "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" ]; then
+                cp -a "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" "${BUILDDEPS_MANAGED}/${dep}/"
+            fi
+        done
     done
     #createrepo_c --compatibility "${BUILDDEPS_MANAGED}"
 }
