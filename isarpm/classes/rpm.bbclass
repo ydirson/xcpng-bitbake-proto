@@ -13,7 +13,6 @@ XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 BUILDDEPS_MANAGED_REPONAME = "bdeps-managed"
 BUILDDEPS_MANAGED = "${WORKDIR}/${BUILDDEPS_MANAGED_REPONAME}"
 
-# FIXME: lacks rdeps of bdeps
 do_collect_managed_builddeps() {
     rm -rf "${BUILDDEPS_MANAGED}"
     mkdir -p "${BUILDDEPS_MANAGED}"
