@@ -9,6 +9,21 @@ Note: although there is some level of separation between generic code
 and XCP-ng/Alma-specific code, this is essentially a prototype, don't
 count on reusability yet.
 
+## status
+
+* prototype
+* content limitations
+  * can only generate part of the packages that make up XCP-ng, some
+    of them not even having the XCP-ng patches added onto the newer
+    upstream version
+  * no usable repository or installation ISO yet
+  * x86_64-v2 arch only
+* tooling limitations
+  * no caching of RPMs downloaded from upstream Alma/EPEL/Fedora
+  * native build only (no cross-compilation)
+  * no support for some features we don't seem to need yet:
+    * rpm dynamic build requirements
+
 ## quick start
 
 Setup a build environment:
@@ -22,7 +37,6 @@ Build all recipes (packages, repositories, images):
 ```
 bitbake world
 ```
-
 
 ## recipe classes
 
@@ -66,6 +80,21 @@ The guidelines we use for AlmaLinux10-compatible RPMs is:
 * pick most packages from Fedora 41
 * pick python packages from Fedora 40 (which has the same python
   interpreter version)
+
+#### filling those `*DEPENDS` variables
+
+Looking at the specfile with `grep` is the best way to identify build
+dependencies, looking at the generated RPMs's `Requires` fields is the
+best way to identify runtime ones.
+
+If any packages are missed for retrievial by one task, the next step
+one will error out and you will see in the task log what packages
+should be added to the previous task.  E.g., if you miss a recipe in
+`DEPENDS` (used by the `do_collect_managed_builddeps` task, then the
+`do_fetch_upstream_builddeps` will try to find the relevant packages
+in Alma, and will fail (unless we're talking about a package that
+*also exists in Alma*, which adds yet another reason to avoid that
+situation).
 
 ## dev cheat sheet
 
