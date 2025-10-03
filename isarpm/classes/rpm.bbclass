@@ -180,7 +180,8 @@ RDEPENDS_EXTRA = "${WORKDIR}/${RDEPENDS_EXTRA_REPONAME}"
 do_fetch_extra_upstream_rdepends() {
     mkdir -p "${RDEPENDS_EXTRA}"
     for rpm in ${EXTRA_UPSTREAM_RDEPENDS}; do
-        wget --directory-prefix="${RDEPENDS_EXTRA}" $rpm
+        curl --silent --show-error --fail --location \
+             --output-dir "${RDEPENDS_EXTRA}" --remote-name "$rpm"
     done
 }
 do_fetch_extra_upstream_rdepends[network] = "1"
