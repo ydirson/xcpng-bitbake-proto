@@ -41,7 +41,8 @@ BUILDDEPS_EXTRA = "${WORKDIR}/${BUILDDEPS_EXTRA_REPONAME}"
 do_fetch_extra_upstream_builddeps() {
     mkdir -p "${BUILDDEPS_EXTRA}"
     for rpm in ${EXTRA_UPSTREAM_DEPENDS}; do
-        wget --directory-prefix="${BUILDDEPS_EXTRA}" $rpm
+        curl --silent --show-error --fail --location \
+             --output-dir "${BUILDDEPS_EXTRA}" --remote-name "$rpm"
     done
 }
 do_fetch_extra_upstream_builddeps[network] = "1"
