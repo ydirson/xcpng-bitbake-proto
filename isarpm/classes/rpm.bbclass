@@ -154,7 +154,12 @@ do_collect_managed_rdeps() {
     rm -rf "${RDEPS_MANAGED}"
     mkdir -p "${RDEPS_MANAGED}"
     for dep in ${RDEPENDS}; do
-        cp -a "${DEPLOY_DIR_ISARPM}/${dep}/RPMS" "${RDEPS_MANAGED}/${dep}"
+        mkdir -p ${RDEPS_MANAGED}/${dep}
+        for rpmdir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
+            if [ -d "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" ]; then
+                cp -a "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" "${RDEPS_MANAGED}/${dep}/"
+            fi
+        done
     done
     createrepo_c --compatibility "${RDEPS_MANAGED}"
 }
@@ -162,7 +167,7 @@ addtask do_collect_managed_rdeps after do_package
 
 # Bitbake does not manage the binary packages so will not make use of
 # RDEPENDS by itself, we have to add the dependencies ourselves.
-# Would otherwisw likely be:
+# Would otherwise likely be:
 #   do_collect_managed_rdeps[rdeptask] = "do_deploy"
 python() {
     taskrdeps = ' '.join(f"{dep}:do_deploy" for dep in d.getVar("RDEPENDS").split())
