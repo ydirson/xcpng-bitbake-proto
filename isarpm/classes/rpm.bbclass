@@ -50,7 +50,7 @@ do_fetch_extra_upstream_builddeps[network] = "1"
 # only create this task if needed
 python() {
     if d.getVar("EXTRA_UPSTREAM_DEPENDS"):
-        bb.build.addtask("do_fetch_extra_upstream_builddeps", "do_fetch_upstream_builddeps", "do_collect_managed_builddeps", d)
+        bb.build.addtask("do_fetch_extra_upstream_builddeps", "do_collect_managed_builddeps", "do_unpack", d)
         BUILDDEPS_EXTRA = d.getVar("BUILDDEPS_EXTRA")
         BUILDDEPS_EXTRA_REPONAME = d.getVar("BUILDDEPS_EXTRA_REPONAME")
         d.setVar("EXTRA_BUILD_FLAGS", f"--local-repo='{BUILDDEPS_EXTRA}' --enablerepo='{BUILDDEPS_EXTRA_REPONAME}'")
