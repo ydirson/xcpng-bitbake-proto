@@ -260,6 +260,9 @@ do_deploy() {
     rm -rf "${RECIPE_DEPLOY_DIR}"
     mkdir -p "${RECIPE_DEPLOY_DIR}"
     cp -a "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RDEPS_MANAGED}" "${RDEPS_UPSTREAM}" "${RECIPE_DEPLOY_DIR}/"
+    if [ -n "${EXTRA_UPSTREAM_RDEPENDS}" ]; then
+        cp -a "${RDEPENDS_EXTRA}" "${RECIPE_DEPLOY_DIR}/"
+    fi
 }
 addtask do_deploy after do_fetch_upstream_rdeps
 
