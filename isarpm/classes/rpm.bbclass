@@ -194,7 +194,7 @@ do_fetch_extra_upstream_rdepends[network] = "1"
 # only create this task if needed
 python() {
     if d.getVar("EXTRA_UPSTREAM_RDEPENDS"):
-        bb.build.addtask("do_fetch_extra_upstream_rdepends", "do_fetch_upstream_rdeps", "do_collect_managed_rdeps", d)
+        bb.build.addtask("do_fetch_extra_upstream_rdepends", "do_collect_managed_rdeps", "do_package", d)
         RDEPENDS_EXTRA = d.getVar("RDEPENDS_EXTRA")
         RDEPENDS_EXTRA_REPONAME = d.getVar("RDEPENDS_EXTRA_REPONAME")
         d.setVar("EXTRA_RUN_FLAGS", f"--local-repo='{RDEPENDS_EXTRA}' --enablerepo='{RDEPENDS_EXTRA_REPONAME}'")
