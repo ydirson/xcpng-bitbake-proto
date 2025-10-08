@@ -27,6 +27,7 @@ do_test() {
             rpm=$(basename $rpm .rpm)
             env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
                     --bootstrap \
+                    --platform "${CONTAINER_ARCH}" \
                     --debug \
                     --no-network --no-update --disablerepo="*" \
                     --local-repo="${TESTREPO_DIR}" --enablerepo="${TESTREPO_NAME}" \
