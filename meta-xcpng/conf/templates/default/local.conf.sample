@@ -182,3 +182,19 @@ BB_DISKMON_DIRS ??= "\
 # track the version of this file when it was generated. This can safely be ignored if
 # this doesn't mean anything to you.
 CONF_VERSION = "2"
+
+#
+# Example useful tunings
+#
+# Enable ccache for all packages, using one cache per package
+#
+#XCPNGDEV_BUILD_OPTS:append = " --ccache=${TOPDIR}/ccache/${PN}"
+#
+# Limit concurent jobs for a given recipe
+#
+#XCPNGDEV_BUILD_OPTS:append:pn-kernel = " --define '_smp_mflags -j3'"
+#
+# Fetch SRCREV from a local clone (no need to push every attempt)
+#
+#SRC_URI:pn-xapi = "git://localhost/home/user/src/xcpng/rpms/${PN}/;protocol=file;nobranch=1"
+#SRC_URI:pn-build-env = "git://localhost/home/user/src/xcpng/build-env/;protocol=file;nobranch=1"
