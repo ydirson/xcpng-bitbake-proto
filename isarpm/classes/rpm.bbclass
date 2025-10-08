@@ -74,7 +74,7 @@ do_fetch_upstream_builddeps() {
 
     # FIXME should be an anynomous python block not copypasta
     case ${PACKAGE_NEEDS_BOOTSTRAP} in
-    0) maybe_bootstrap= ;;
+    0) maybe_bootstrap=--isarpm ;;
     1) maybe_bootstrap=--bootstrap ;;
     esac
 
