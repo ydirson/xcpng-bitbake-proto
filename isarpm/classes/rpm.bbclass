@@ -81,6 +81,7 @@ do_fetch_upstream_builddeps() {
     URLS=$(
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
                 $maybe_bootstrap \
+                --platform "${CONTAINER_ARCH}" \
                 --debug \
                 --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
                 ${EXTRA_BUILD_FLAGS} \
@@ -124,6 +125,7 @@ do_package() {
 
     env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container build "9.0" "${S}" \
         $maybe_bootstrap \
+        --platform "${CONTAINER_ARCH}" \
         --debug \
         --no-network --no-update --disablerepo="*" \
         --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
@@ -228,6 +230,7 @@ do_fetch_upstream_rdeps() {
             rpm=$(basename $rpm .rpm)
             env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
                     $maybe_bootstrap \
+                    --platform "${CONTAINER_ARCH}" \
                     --debug \
                     --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
                     --local-repo="${RDEPS_MANAGED}" --enablerepo="${RDEPS_MANAGED_REPONAME}" \
@@ -271,6 +274,7 @@ do_test() {
     for rpm in ${WORKDIR}/RPMS/*/*.rpm; do
         env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
                 --bootstrap \
+                --platform "${CONTAINER_ARCH}" \
                 --debug \
                 --no-network --no-update --disablerepo="*" \
                 --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \

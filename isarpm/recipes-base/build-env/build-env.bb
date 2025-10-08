@@ -7,14 +7,16 @@
 # for xcp-ng-build-env on another side.
 
 SRC_URI = "git://github.com/xcp-ng/xcp-ng-build-env;protocol=https;branch=ydi/9"
-SRCREV = "c2944126a2cb74e9db8432a03f8221ed8ab715e9"
+SRCREV = "b54f749d8bec996d758024ea41cca05bdc0ec81a"
 
 # FIXME: this ought to be "${WORKDIR}/git", what's wrong with unpack?
 S = "${UNPACKDIR}/git"
 
-
 do_create_bootstrap() {
-    env XCPNG_OCI_RUNNER=podman ${S}/container/build.sh --bootstrap 9.0
+    env XCPNG_OCI_RUNNER=podman ${S}/container/build.sh \
+        --platform "${CONTAINER_ARCH}" \
+        --bootstrap \
+        9.0
 }
 # FIXME: temporary until we separately fetch the required RPMs
 do_create_bootstrap[network] = "1"
@@ -23,6 +25,7 @@ addtask create_bootstrap after do_unpack
 
 do_create() {
     env XCPNG_OCI_RUNNER=podman ${S}/container/build.sh \
+        --platform "${CONTAINER_ARCH}" \
         --isarpm \
         --add-repo "release:${DEPLOY_DIR}/rpms/xcp-ng-release/RPMS" \
         9.0
