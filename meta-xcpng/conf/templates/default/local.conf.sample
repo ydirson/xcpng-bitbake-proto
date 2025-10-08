@@ -21,6 +21,7 @@
 #
 #MACHINE ?= "x86-64-v2"
 #MACHINE ?= "x86-64"
+#MACHINE ?= "aarch64"
 MACHINE ??= "x86-64-v2"
 
 # These are some of the more commonly used values. Looking at the files in the
