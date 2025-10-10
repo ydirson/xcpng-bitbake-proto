@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "6cc1767aeea19d740d98a44bcdac7ae2a4e27120"
+SRCREV = "0f0899b68f618320c9169bb38869830cc1a88288"
 
 DEPENDS += "ocaml ocaml-findlib libempserver"
 
