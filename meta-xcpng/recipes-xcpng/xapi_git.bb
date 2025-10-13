@@ -35,6 +35,8 @@ RDEPENDS += " \
   xcp-clipboardd \
   xengt-userspace \
 "
+# FIXME: temporary disabled in ARM while we bootstrap
+RDEPENDS:remove:aarch64 = "qemu"
 
 # rrdd-plugins
 RDEPENDS += " \
