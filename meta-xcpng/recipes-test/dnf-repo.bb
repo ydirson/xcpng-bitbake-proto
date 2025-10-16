@@ -1,9 +1,7 @@
 DEPENDS = " \
   branding-xcp-ng \
   xcp-ng-release \
-  ocaml \
-  libempserver \
-  ocaml-findlib \
+  xen \
 "
 
 TESTREPO_NAME = "xcp-test"
