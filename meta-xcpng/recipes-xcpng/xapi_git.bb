@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "28ad3c1011e4ab2c72c9ce176aed700c77b051f2"
+SRCREV = "ba6d5a92a45303a2f27bd56a2c398e2ad891e9f1"
 
 # add "noshared" to let git-describe work in the container, for the "-dirty" workaround
 BB_GIT_NOSHARED = "1"
