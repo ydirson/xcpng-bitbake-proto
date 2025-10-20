@@ -69,7 +69,8 @@ BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
 do_fetch_upstream_builddeps() {
     BASE_S=$(basename ${S})
     SPEC=SPECS/${PN}.spec
-    [ -r "${S}/$SPEC" ] || SPEC=${PN}.spec
+    SOURCES=SOURCES
+    [ -r "${S}/$SPEC" ] || { SPEC=${PN}.spec; SOURCES=.; }
     [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
 
     # FIXME should be an anynomous python block not copypasta
@@ -89,7 +90,7 @@ do_fetch_upstream_builddeps() {
                 -d "${S}" \
                 -v ${LAYERDIR_isarpm}/libexec/get-build-deps-urls.sh:/external/get-build-deps-urls.sh \
             "9.0" \
-            -- /external/get-build-deps-urls.sh /external/${BASE_S}/${SPEC} /external/${BASE_S}
+            -- /external/get-build-deps-urls.sh /external/${BASE_S}/${SPEC} /external/${BASE_S}/$SOURCES /external/${BASE_S}
     )
 
     # FIXME use DL cache
