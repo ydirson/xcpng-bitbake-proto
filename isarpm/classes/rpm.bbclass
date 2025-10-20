@@ -212,6 +212,7 @@ RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
 
 # FIXME: find a way to collect errors from all RPMs in a single run, rather
 # than stopping on first error
+# FIXME: launch only one container not one per RPM (deadly slow on MtCollins)
 do_fetch_upstream_rdeps() {
     BASE_S=$(basename ${S})
     SPEC=SPECS/${PN}.spec
