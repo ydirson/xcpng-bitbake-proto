@@ -214,11 +214,6 @@ RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
 # than stopping on first error
 # FIXME: launch only one container not one per RPM (deadly slow on MtCollins)
 do_fetch_upstream_rdeps() {
-    BASE_S=$(basename ${S})
-    SPEC=SPECS/${PN}.spec
-    [ -r "${S}/$SPEC" ] || SPEC=${PN}.spec
-    [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
-
     # FIXME should be an anynomous python block not copypasta
     case ${PACKAGE_NEEDS_BOOTSTRAP} in
     0) maybe_bootstrap=--isarpm ;;
