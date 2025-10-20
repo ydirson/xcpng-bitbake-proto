@@ -54,7 +54,7 @@ EXTRA_UPSTREAM_RDEPENDS = " \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/40/Everything/x86_64/os/Packages/p/python3-urlgrabber-4.1.0-16.fc40.noarch.rpm \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/40/Everything/x86_64/os/Packages/p/python3-importlib-metadata-6.9.0-3.fc40.noarch.rpm \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-opentelemetry-exporter-zipkin-1.25.0-2.fc40.noarch.rpm \
-  https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-opentelemetry-exporter-zipkin-1.25.0-2.fc40.noarch.rpm \
+  https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-opentelemetry-exporter-zipkin-json-1.25.0-2.fc40.noarch.rpm \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-opentelemetry-exporter-zipkin-proto-http-1.25.0-2.fc40.noarch.rpm \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-opentelemetry-api-1.25.0-2.fc40.noarch.rpm \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-opentelemetry-sdk-1.25.0-2.fc40.noarch.rpm \
