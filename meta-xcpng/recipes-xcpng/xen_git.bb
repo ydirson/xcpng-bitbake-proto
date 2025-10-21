@@ -18,7 +18,10 @@ libempserver \
 ocaml \
 "
 
-RDEPENDS:append:x86_64_v2 = " \
+RDEPENDS:append:x86-64-v2 = " \
+edk2 ipxe \
+"
+RDEPENDS:append:x86-64 = " \
 edk2 ipxe \
 "
 
