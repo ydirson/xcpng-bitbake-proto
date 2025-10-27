@@ -213,7 +213,6 @@ RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
 
 # FIXME: find a way to collect errors from all RPMs in a single run, rather
 # than stopping on first error
-# FIXME: launch only one container not one per RPM (deadly slow on MtCollins)
 do_fetch_upstream_rdeps() {
     # FIXME should be an anynomous python block not copypasta
     case ${PACKAGE_NEEDS_BOOTSTRAP} in
@@ -223,19 +222,20 @@ do_fetch_upstream_rdeps() {
 
     URLS=$(
         set -o pipefail # FIXME bashism?
+        rpms=""
         for rpm in ${WORKDIR}/RPMS/*/*.rpm; do
-            rpm=$(basename $rpm .rpm)
-            env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
-                    $maybe_bootstrap \
-                    --platform "${CONTAINER_ARCH}" \
-                    --debug \
-                    --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
-                    --local-repo="${RDEPS_MANAGED}" --enablerepo="${RDEPS_MANAGED_REPONAME}" \
-                    ${EXTRA_RUN_FLAGS} \
-                    --no-update --disablerepo=xcpng \
-                "9.0" \
-                -- dnf download --quiet --resolve --urls $rpm
-        done | sort -u
+            rpms="$rpms $(basename $rpm .rpm)"
+        done
+        env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
+                $maybe_bootstrap \
+                --platform "${CONTAINER_ARCH}" \
+                --debug \
+                --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
+                --local-repo="${RDEPS_MANAGED}" --enablerepo="${RDEPS_MANAGED_REPONAME}" \
+                ${EXTRA_RUN_FLAGS} \
+                --no-update --disablerepo=xcpng \
+            "9.0" \
+            -- dnf download --quiet --resolve --urls $rpms
     )
 
     # FIXME use DL cache
