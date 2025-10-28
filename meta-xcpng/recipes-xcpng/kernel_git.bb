@@ -5,6 +5,7 @@ XCPNGDEV_BUILD_OPTS = " \
   --rpmbuild-opts='--with baseonly' \
   --rpmbuild-opts='--without debuginfo' \
   --rpmbuild-opts='--without kabichk' \
+  --rpmbuild-opts='--without doc' \
 "
 
 # FIXME: should be infered from `sources` by specific class, use MIRRORS, etc.
