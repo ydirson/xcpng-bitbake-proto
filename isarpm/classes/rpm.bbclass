@@ -6,6 +6,8 @@ XCPNGDEV_BUILD_OPTS ?= ""
 DEPLOY_DIR_ISARPM = "${DEPLOY_DIR}/rpms"
 RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
 
+UPSTREAM_RPM_CACHEDIR = "${DL_DIR}/upstream"
+
 # FIXME: xcp-ng-dev commands should be provided by build-env.class
 XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 
@@ -40,9 +42,14 @@ BUILDDEPS_EXTRA = "${WORKDIR}/${BUILDDEPS_EXTRA_REPONAME}"
 
 do_fetch_extra_upstream_builddeps() {
     mkdir -p "${BUILDDEPS_EXTRA}"
-    for rpm in ${EXTRA_UPSTREAM_DEPENDS}; do
-        curl --silent --show-error --fail --location \
-             --output-dir "${BUILDDEPS_EXTRA}" --remote-name "$rpm"
+    for url in ${EXTRA_UPSTREAM_DEPENDS}; do
+        rpm=$(basename "$url")
+        if [ ! -e "${UPSTREAM_RPM_CACHEDIR}/$rpm" ]; then
+            mkdir -p "${UPSTREAM_RPM_CACHEDIR}"
+            curl --silent --show-error --fail --location \
+                 --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
+        fi
+        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_EXTRA}/"
     done
 }
 do_fetch_extra_upstream_builddeps[network] = "1"
@@ -93,15 +100,19 @@ do_fetch_upstream_builddeps() {
             -- /external/get-build-deps-urls.sh /external/${BASE_S}/${SPEC} /external/${BASE_S}/$SOURCES /external/${BASE_S}
     )
 
-    # FIXME use DL cache
     rm -rf "${BUILDDEPS_UPSTREAM}"
     mkdir -p "${BUILDDEPS_UPSTREAM}"
     for url in $URLS; do
         case "$url" in
             file://*) continue ;; # skip files we provide in local repos
         esac
-        curl --silent --show-error --fail --location \
-             --output-dir "${BUILDDEPS_UPSTREAM}" --remote-name "$url"
+        rpm=$(basename "$url")
+        if [ ! -e "${UPSTREAM_RPM_CACHEDIR}/$rpm" ]; then
+            mkdir -p "${UPSTREAM_RPM_CACHEDIR}"
+            curl --silent --show-error --fail --location \
+                 --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
+        fi
+        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_UPSTREAM}/"
     done
 }
 do_fetch_upstream_builddeps[network] = "1"
@@ -187,9 +198,14 @@ RDEPENDS_EXTRA = "${WORKDIR}/${RDEPENDS_EXTRA_REPONAME}"
 
 do_fetch_extra_upstream_rdepends() {
     mkdir -p "${RDEPENDS_EXTRA}"
-    for rpm in ${EXTRA_UPSTREAM_RDEPENDS}; do
-        curl --silent --show-error --fail --location \
-             --output-dir "${RDEPENDS_EXTRA}" --remote-name "$rpm"
+    for url in ${EXTRA_UPSTREAM_RDEPENDS}; do
+        rpm=$(basename "$url")
+        if [ ! -e "${UPSTREAM_RPM_CACHEDIR}/$rpm" ]; then
+            mkdir -p "${UPSTREAM_RPM_CACHEDIR}"
+            curl --silent --show-error --fail --location \
+                 --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
+        fi
+        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPENDS_EXTRA}/"
     done
 }
 do_fetch_extra_upstream_rdepends[network] = "1"
@@ -238,15 +254,19 @@ do_fetch_upstream_rdeps() {
             -- dnf download --quiet --resolve --urls $rpms
     )
 
-    # FIXME use DL cache
     rm -rf "${RDEPS_UPSTREAM}"
     mkdir -p "${RDEPS_UPSTREAM}"
     for url in $URLS; do
         case "$url" in
             file://*) continue ;; # skip files we provide in local repos, including rpms from this recipe
         esac
-        curl --silent --show-error --fail --location \
-             --output-dir "${RDEPS_UPSTREAM}" --remote-name "$url"
+        rpm=$(basename "$url")
+        if [ ! -e "${UPSTREAM_RPM_CACHEDIR}/$rpm" ]; then
+            mkdir -p "${UPSTREAM_RPM_CACHEDIR}"
+            curl --silent --show-error --fail --location \
+                 --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
+        fi
+        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPS_UPSTREAM}/"
     done
 }
 do_fetch_upstream_rdeps[network] = "1"
