@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "456a57a80f65bf4ed42032a82f528792fb63281a"
+SRCREV = "0f081cb677be6446278dbec1fd25e392ce04702c"
 XCPNGDEV_BUILD_OPTS = " \
   --rpmbuild-opts='--with baseonly' \
   --rpmbuild-opts='--without debuginfo' \
