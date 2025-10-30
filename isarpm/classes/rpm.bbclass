@@ -67,8 +67,6 @@ python() {
 
 
 BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
-# FIXME we want to share this under DL_DIR, but then only pass the
-# requested ones to do_package
 BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
 
 # FIXME: managed RPM pulled by an upstream one will be missed
@@ -223,8 +221,6 @@ python() {
 
 
 RDEPS_UPSTREAM_REPONAME = "rdeps-upstream"
-# FIXME we want to share this under DL_DIR, but then only pass the
-# requested ones to do_package
 RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
 
 # FIXME: find a way to collect errors from all RPMs in a single run, rather
