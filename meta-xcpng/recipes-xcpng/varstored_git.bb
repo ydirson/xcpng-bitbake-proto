@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "a1043efbaa4be3c15813531a3fe8beb7e020b1c8"
+SRCREV = "8bb5549c7125ea0497e47c52cca0a3cf03c6922a"
 
 DEPENDS += "xen"
 
