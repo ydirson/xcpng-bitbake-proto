@@ -1,4 +1,5 @@
 DEPENDS = "xcp-ng-deps"
+DEPENDS += "host-installer"
 
 # FIXME needed by install-image.bb, we could have the latter use the
 # bb recipe instead
