@@ -1,8 +1,4 @@
-DEPENDS = " \
-  branding-xcp-ng \
-  xcp-ng-release \
-  xen \
-"
+DEPENDS = "xcp-ng-deps"
 
 TESTREPO_NAME = "xcp-test"
 TESTREPO_DIR = "${DEPLOY_DIR}/repo/${TESTREPO_NAME}"
@@ -10,7 +6,7 @@ do_deploy() {
     rm -rf ${TESTREPO_DIR}
     mkdir -p ${TESTREPO_DIR}
     for dep in ${DEPENDS}; do
-        for dir in RPMS rdeps-extra rdeps-managed; do
+        for dir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
             [ -r ${DEPLOY_DIR}/rpms/$dep/$dir ] || continue
             cp -a "${DEPLOY_DIR}/rpms/$dep/$dir" "${TESTREPO_DIR}/$dep"
         done
