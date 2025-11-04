@@ -1,5 +1,6 @@
 inherit xcp-ng-rpm
 
+# FIXME: update EXTRA_UPSTREAM_RDEPENDS:append:x86_64 when we bump this
 SRCREV = "60bb7b7ee725fd00424b9ee66e3e60fba199a531"
 SRCREV:aarch64 = "59073c0986105fae3f348c8ba8293b34c167d783"
 
@@ -87,4 +88,10 @@ EXTRA_UPSTREAM_RDEPENDS:append:aarch64 = " \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/aarch64/os/Packages/o/openvswitch-3.4.0-2.fc41.aarch64.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/aarch64/os/Packages/l/libcgroup-tools-3.0-6.fc41.aarch64.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/aarch64/os/Packages/l/libcgroup-3.0-6.fc41.aarch64.rpm \
+\
+  http://www.rpmfind.net/linux/fedora/linux/releases/41/Everything/aarch64/os/Packages/i/iptables-legacy-1.8.10-15.fc41.aarch64.rpm \
+  http://www.rpmfind.net/linux/fedora/linux/releases/41/Everything/aarch64/os/Packages/i/iptables-legacy-libs-1.8.10-15.fc41.aarch64.rpm \
+  http://www.rpmfind.net/linux/fedora/linux/releases/41/Everything/aarch64/os/Packages/i/iptables-libs-1.8.10-15.fc41.aarch64.rpm \
+  http://www.rpmfind.net/linux/fedora/linux/releases/41/Everything/aarch64/os/Packages/i/iptables-services-1.8.10-15.fc41.noarch.rpm \
+  http://www.rpmfind.net/linux/fedora/linux/releases/41/Everything/aarch64/os/Packages/i/iptables-utils-1.8.10-15.fc41.aarch64.rpm \
 "
