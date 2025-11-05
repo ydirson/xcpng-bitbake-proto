@@ -4,6 +4,7 @@ SRCREV = "4c04df5bcf6b15ba497aa55e2fc18ed6cfd4a99e"
 
 RDEPENDS = " \
 xcp-ng-release \
+kernel \
 blktap \
 guest-templates-json \
 varstored \
