@@ -5,6 +5,7 @@ You can now run 'bitbake <target>'
 
 Common targets are:
     xapi
+    dnf-repo
 
 Other commonly useful commands are:
  - 'devtool' and 'recipetool' handle common recipe tasks
