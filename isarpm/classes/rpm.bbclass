@@ -52,7 +52,7 @@ do_collect_managed_rdeps() {
         mkdir -p ${RDEPS_MANAGED}/${dep}
         for rpmdir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
             if [ -d "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" ]; then
-                cp -a "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" "${RDEPS_MANAGED}/${dep}/"
+                cp -la "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" "${RDEPS_MANAGED}/${dep}/"
             fi
         done
     done
@@ -86,7 +86,7 @@ do_fetch_extra_upstream_rdepends() {
             curl --silent --show-error --fail --location \
                  --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
         fi
-        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPENDS_EXTRA}/"
+        cp -l "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPENDS_EXTRA}/"
     done
 }
 do_fetch_extra_upstream_rdepends[network] = "1"
@@ -145,7 +145,7 @@ do_fetch_upstream_rdeps() {
             curl --silent --show-error --fail --location \
                  --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
         fi
-        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPS_UPSTREAM}/"
+        cp -l "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPS_UPSTREAM}/"
     done
 }
 do_fetch_upstream_rdeps[network] = "1"
@@ -158,9 +158,9 @@ addtask do_fetch_upstream_rdeps after do_collect_managed_rdeps
 do_deploy() {
     rm -rf "${RECIPE_DEPLOY_DIR}"
     mkdir -p "${RECIPE_DEPLOY_DIR}"
-    cp -a "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RDEPS_MANAGED}" "${RDEPS_UPSTREAM}" "${RECIPE_DEPLOY_DIR}/"
+    cp -la "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RDEPS_MANAGED}" "${RDEPS_UPSTREAM}" "${RECIPE_DEPLOY_DIR}/"
     if [ -n "${EXTRA_UPSTREAM_RDEPENDS}" ]; then
-        cp -a "${RDEPENDS_EXTRA}" "${RECIPE_DEPLOY_DIR}/"
+        cp -la "${RDEPENDS_EXTRA}" "${RECIPE_DEPLOY_DIR}/"
     fi
 }
 addtask do_deploy after do_fetch_upstream_rdeps

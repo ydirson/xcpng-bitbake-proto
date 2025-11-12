@@ -12,7 +12,7 @@ do_deploy() {
     for dep in ${DEPENDS}; do
         for dir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
             [ -r ${DEPLOY_DIR}/rpms/$dep/$dir ] || continue
-            cp -a "${DEPLOY_DIR}/rpms/$dep/$dir" "${TESTREPO_DIR}/$dep"
+            cp -la "${DEPLOY_DIR}/rpms/$dep/$dir" "${TESTREPO_DIR}/$dep"
         done
     done
     createrepo_c --compatibility ${TESTREPO_DIR}

@@ -19,7 +19,7 @@ do_collect_managed_builddeps() {
         mkdir -p ${BUILDDEPS_MANAGED}/${dep}
         for rpmdir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
             if [ -d "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" ]; then
-                cp -a "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" "${BUILDDEPS_MANAGED}/${dep}/"
+                cp -la "${DEPLOY_DIR_ISARPM}/$dep/$rpmdir" "${BUILDDEPS_MANAGED}/${dep}/"
             fi
         done
     done
@@ -46,7 +46,7 @@ do_fetch_extra_upstream_builddeps() {
             curl --silent --show-error --fail --location \
                  --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
         fi
-        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_EXTRA}/"
+        cp -l "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_EXTRA}/"
     done
 }
 do_fetch_extra_upstream_builddeps[network] = "1"
@@ -107,7 +107,7 @@ do_fetch_upstream_builddeps() {
             curl --silent --show-error --fail --location \
                  --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
         fi
-        cp "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_UPSTREAM}/"
+        cp -l "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_UPSTREAM}/"
     done
 }
 do_fetch_upstream_builddeps[network] = "1"
