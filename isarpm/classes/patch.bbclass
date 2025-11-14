@@ -5,6 +5,8 @@
 # Point to an empty file so any user's custom settings don't break things
 QUILTRCFILE ?= "${STAGING_ETCDIR_NATIVE}/quiltrc"
 
+HOSTPATCHTOOL ?= "0"
+
 PATCHDEPENDENCY = "${PATCHTOOL}-native:do_populate_sysroot"
 
 # There is a bug in patch 2.7.3 and earlier where index lines
@@ -164,6 +166,6 @@ patch_do_patch[vardepsexclude] = "PATCHRESOLVE"
 
 addtask patch after do_unpack
 do_patch[dirs] = "${WORKDIR}"
-do_patch[depends] = "${PATCHDEPENDENCY}"
+do_patch[depends] = "${@ '${PATCHDEPENDENCY}' if ${HOSTPATCHTOOL} == 0 else '' }"
 
 EXPORT_FUNCTIONS do_patch
