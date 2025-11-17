@@ -1,5 +1,9 @@
 DEPENDS = "xcp-ng-deps"
 
+# FIXME needed by install-image.bb, we could have the latter use the
+# bb recipe instead
+DEPENDS += "branding-xcp-ng"
+
 TESTREPO_NAME = "xcp-test"
 TESTREPO_DIR = "${DEPLOY_DIR}/repo/${TESTREPO_NAME}"
 do_deploy() {
@@ -41,3 +45,8 @@ do_test[network] = "1"
 do_build() {
 }
 addtask do_build after do_deploy
+
+# override bitbake_base.bbclass
+python() {
+    d.delVarFlag("do_build", "nostamp")
+}
