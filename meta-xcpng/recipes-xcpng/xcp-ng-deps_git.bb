@@ -1,9 +1,10 @@
 inherit xcp-ng-rpm
 
-SRCREV = "4c04df5bcf6b15ba497aa55e2fc18ed6cfd4a99e"
+SRCREV = "faa00ff270b5426c1c2cb99dcc13efe630802175"
 
 RDEPENDS = " \
 xcp-ng-release \
+xcp-ng-config \
 kernel \
 grub2 \
 blktap \
