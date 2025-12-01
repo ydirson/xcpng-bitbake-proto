@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "faa00ff270b5426c1c2cb99dcc13efe630802175"
+SRCREV = "f125520e6bd4e75b9f20b34f498201e46db4f32e"
 
 RDEPENDS = " \
 xcp-ng-release \
