@@ -64,7 +64,7 @@ EXTRA_UPSTREAM_RDEPENDS = " \
   https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/40/Everything/x86_64/Packages/p/python3-zipp-3.17.0-4.fc40.noarch.rpm \
 "
 
-EXTRA_UPSTREAM_RDEPENDS:append:x86_64 = " \
+EXTRA_UPSTREAM_RDEPENDS:append:x86-64-v2 = " \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/d/dhcp-client-4.4.3-14.P1.fc41.x86_64.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/d/dhcp-common-4.4.3-14.P1.fc41.noarch.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/n/nbd-3.25-5.fc41.x86_64.rpm \
