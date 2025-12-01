@@ -75,6 +75,13 @@ EXTRA_UPSTREAM_RDEPENDS:append:x86-64-v2 = " \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/o/openvswitch-3.4.0-2.fc41.x86_64.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/l/libcgroup-tools-3.0-6.fc41.x86_64.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/l/libcgroup-3.0-6.fc41.x86_64.rpm \
+  \
+  https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-legacy-1.8.10-15.fc41.x86_64.rpm \
+  https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-legacy-libs-1.8.10-15.fc41.x86_64.rpm \
+  https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-libs-1.8.10-15.fc41.x86_64.rpm \
+  https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-services-1.8.10-15.fc41.noarch.rpm \
+  https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-utils-1.8.10-15.fc41.x86_64.rpm \
+"
 "
 
 EXTRA_UPSTREAM_RDEPENDS:append:aarch64 = " \
