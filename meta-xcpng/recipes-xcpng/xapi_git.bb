@@ -82,6 +82,10 @@ EXTRA_UPSTREAM_RDEPENDS:append:x86-64-v2 = " \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-services-1.8.10-15.fc41.noarch.rpm \
   https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/i/iptables-utils-1.8.10-15.fc41.x86_64.rpm \
 "
+
+# in EPEL 10.1
+EXTRA_UPSTREAM_RDEPENDS:append:x86-64-v2 = " \
+https://download.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/Packages/j/jemalloc-5.3.0-7.fc41.x86_64.rpm \
 "
 
 EXTRA_UPSTREAM_RDEPENDS:append:aarch64 = " \
