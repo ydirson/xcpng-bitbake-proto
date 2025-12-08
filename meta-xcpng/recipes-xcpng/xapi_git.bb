@@ -1,7 +1,7 @@
 inherit xcp-ng-rpm
 
 # FIXME: update EXTRA_UPSTREAM_RDEPENDS:append:x86_64 when we bump this
-SRCREV = "60bb7b7ee725fd00424b9ee66e3e60fba199a531"
+SRCREV = "46438db3346db96b45a789d2b5d728c7f2fc66d5"
 SRCREV:aarch64 = "59073c0986105fae3f348c8ba8293b34c167d783"
 
 # add "noshared" to let git-describe work in the container, for the "-dirty" workaround
