@@ -11,16 +11,37 @@ do_deploy() {
     rm -rf ${TESTREPO_DIR}
     mkdir -p ${TESTREPO_DIR}
     for dep in ${DEPENDS}; do
-        for dir in RPMS rdeps-extra rdeps-managed rdeps-upstream; do
-            [ -r ${DEPLOY_DIR}/rpms/$dep/$dir ] || continue
-            cp -la "${DEPLOY_DIR}/rpms/$dep/$dir" "${TESTREPO_DIR}/$dep"
-        done
+        _deploy_rpm "${DEPLOY_DIR}/rpms/$dep"
     done
     createrepo_c --compatibility ${TESTREPO_DIR}
 }
 addtask do_deploy
 do_deploy[deptask] = "do_deploy"
 
+_deploy_rpm() {
+    dir="$1"
+    rpmname=$(basename "$dir")
+    # get each package once only
+    [ ! -r "${TESTREPO_DIR}/$rpmname" ] || return 0
+    cp -la "$dir/RPMS" "${TESTREPO_DIR}/$rpmname"
+    # get rid of files making RPMS a yum repo
+    rm -rf "${TESTREPO_DIR}/$rpmname/repodata" "${TESTREPO_DIR}/$rpmname/"*.repo
+
+    if [ -r "$dir/rdeps-extra" ]; then
+        mkdir -p "${TESTREPO_DIR}/extra"
+        cp -la "$dir/rdeps-extra/"*.rpm "${TESTREPO_DIR}/extra/"
+    fi
+    rpms=$(echo "$dir/rdeps-upstream/"*.rpm)
+    if [ "$rpms" != "$dir/rdeps-upstream/*.rpm" ]; then
+        mkdir -p "${TESTREPO_DIR}/upstream"
+        cp -la $rpms "${TESTREPO_DIR}/upstream/"
+    fi
+    for dep in "$dir/rdeps-managed"/*; do
+        [ -d "$dep" ] || continue
+        [ "$(basename $dep)" != "repodata" ] || continue
+        _deploy_rpm $dep
+    done
+}
 
 XCPNGDEV = "${DEPLOY_DIR}/build-env/bin/xcp-ng-dev"
 do_test() {
