@@ -5,9 +5,11 @@
 #
 
 import subprocess
-import multiprocessing
 import traceback
 import errno
+
+import bb.parse
+from bb import multiprocessing
 
 def read_file(filename):
     try:
@@ -172,18 +174,14 @@ def any_distro_features(d, features, truevalue="1", falsevalue=""):
     """
     return bb.utils.contains_any("DISTRO_FEATURES", features, truevalue, falsevalue, d)
 
-def parallel_make(d, makeinst=False):
+def parallel_make_value(pm):
     """
     Return the integer value for the number of parallel threads to use when
-    building, scraped out of PARALLEL_MAKE. If no parallelization option is
-    found, returns None
+    building, scraped out of given string. If no parallelization option is
+    found, returns empty string
 
-    e.g. if PARALLEL_MAKE = "-j 10", this will return 10 as an integer.
+    e.g. if string is "-j 10", this will return 10 as an integer.
     """
-    if makeinst:
-        pm = (d.getVar('PARALLEL_MAKEINST') or '').split()
-    else:
-        pm = (d.getVar('PARALLEL_MAKE') or '').split()
     # look for '-j' and throw other options (e.g. '-l') away
     while pm:
         opt = pm.pop(0)
@@ -197,6 +195,20 @@ def parallel_make(d, makeinst=False):
         return int(v)
 
     return ''
+
+def parallel_make(d, makeinst=False):
+    """
+    Return the integer value for the number of parallel threads to use when
+    building, scraped out of PARALLEL_MAKE. If no parallelization option is
+    found, returns empty string
+
+    e.g. if PARALLEL_MAKE = "-j 10", this will return 10 as an integer.
+    """
+    if makeinst:
+        pm = (d.getVar('PARALLEL_MAKEINST') or '').split()
+    else:
+        pm = (d.getVar('PARALLEL_MAKE') or '').split()
+    return parallel_make_value(pm)
 
 def parallel_make_argument(d, fmt, limit=None, makeinst=False):
     """
@@ -265,6 +277,7 @@ def execute_pre_post_process(d, cmds):
         bb.note("Executing %s ..." % cmd)
         bb.build.exec_func(cmd, d)
 
+@bb.parse.vardepsexclude("BB_NUMBER_THREADS")
 def get_bb_number_threads(d):
     return int(d.getVar("BB_NUMBER_THREADS") or os.cpu_count() or 1)
 
@@ -316,7 +329,9 @@ def multiprocess_launch_mp(target, items, max_process, extraargs=None):
     items = list(items)
     while (items and not errors) or launched:
         if not errors and items and len(launched) < max_process:
-            args = (items.pop(),)
+            args = items.pop()
+            if not type(args) is tuple:
+                args = (args,)
             if extraargs is not None:
                 args = args + extraargs
             p = ProcessLaunch(target=target, args=args)
@@ -410,62 +425,31 @@ def format_pkg_list(pkg_dict, ret_format=None, pkgdata_dir=None):
     return output_str
 
 
-# Helper function to get the host compiler version
-# Do not assume the compiler is gcc
-def get_host_compiler_version(d, taskcontextonly=False):
+# Helper function to get the host gcc version
+def get_host_gcc_version(d, taskcontextonly=False):
     import re, subprocess
 
     if taskcontextonly and d.getVar('BB_WORKERCONTEXT') != '1':
         return
 
-    compiler = d.getVar("BUILD_CC")
-    # Get rid of ccache since it is not present when parsing.
-    if compiler.startswith('ccache '):
-        compiler = compiler[7:]
     try:
         env = os.environ.copy()
         # datastore PATH does not contain session PATH as set by environment-setup-...
         # this breaks the install-buildtools use-case
         # env["PATH"] = d.getVar("PATH")
-        output = subprocess.check_output("%s --version" % compiler, \
+        output = subprocess.check_output("gcc --version", \
                     shell=True, env=env, stderr=subprocess.STDOUT).decode("utf-8")
     except subprocess.CalledProcessError as e:
-        bb.fatal("Error running %s --version: %s" % (compiler, e.output.decode("utf-8")))
+        bb.fatal("Error running gcc --version: %s" % (e.output.decode("utf-8")))
 
     match = re.match(r".* (\d+\.\d+)\.\d+.*", output.split('\n')[0])
     if not match:
-        bb.fatal("Can't get compiler version from %s --version output" % compiler)
+        bb.fatal("Can't get compiler version from gcc --version output")
 
     version = match.group(1)
-    return compiler, version
+    return version
 
-
-def host_gcc_version(d, taskcontextonly=False):
-    import re, subprocess
-
-    if taskcontextonly and d.getVar('BB_WORKERCONTEXT') != '1':
-        return
-
-    compiler = d.getVar("BUILD_CC")
-    # Get rid of ccache since it is not present when parsing.
-    if compiler.startswith('ccache '):
-        compiler = compiler[7:]
-    try:
-        env = os.environ.copy()
-        env["PATH"] = d.getVar("PATH")
-        output = subprocess.check_output("%s --version" % compiler, \
-                    shell=True, env=env, stderr=subprocess.STDOUT).decode("utf-8")
-    except subprocess.CalledProcessError as e:
-        bb.fatal("Error running %s --version: %s" % (compiler, e.output.decode("utf-8")))
-
-    match = re.match(r".* (\d+\.\d+)\.\d+.*", output.split('\n')[0])
-    if not match:
-        bb.fatal("Can't get compiler version from %s --version output" % compiler)
-
-    version = match.group(1)
-    return "-%s" % version if version in ("4.8", "4.9") else ""
-
-
+@bb.parse.vardepsexclude("DEFAULTTUNE_MULTILIB_ORIGINAL", "OVERRIDES")
 def get_multilib_datastore(variant, d):
     localdata = bb.data.createCopy(d)
     if variant:

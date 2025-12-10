@@ -76,7 +76,7 @@ SSTATE_SCAN_CMD_NATIVE ??= 'grep -Irl -e ${RECIPE_SYSROOT} -e ${RECIPE_SYSROOT_N
 SSTATE_HASHEQUIV_FILEMAP ?= " \
     populate_sysroot:*/postinst-useradd-*:${TMPDIR} \
     populate_sysroot:*/postinst-useradd-*:${COREBASE} \
-    populate_sysroot:*/postinst-useradd-*:regex-\s(PATH|PSEUDO_IGNORE_PATHS|HOME|LOGNAME|OMP_NUM_THREADS|USER)=.*\s \
+    populate_sysroot:*/postinst-useradd-*:regex-\s(PATH|PSEUDO_INCLUDE_PATHS|HOME|LOGNAME|OMP_NUM_THREADS|USER)=.*\s \
     populate_sysroot:*/crossscripts/*:${TMPDIR} \
     populate_sysroot:*/crossscripts/*:${COREBASE} \
     "
@@ -306,18 +306,17 @@ def sstate_install(ss, d):
         sharedfiles.append(ss['fixmedir'] + "/fixmepath")
 
     # Write out the manifest
-    f = open(manifest, "w")
-    for file in sharedfiles:
-        f.write(file + "\n")
+    with open(manifest, "w") as f:
+        for file in sharedfiles:
+            f.write(file + "\n")
 
-    # We want to ensure that directories appear at the end of the manifest
-    # so that when we test to see if they should be deleted any contents
-    # added by the task will have been removed first.
-    dirs = sorted(shareddirs, key=len)
-    # Must remove children first, which will have a longer path than the parent
-    for di in reversed(dirs):
-        f.write(di + "\n")
-    f.close()
+        # We want to ensure that directories appear at the end of the manifest
+        # so that when we test to see if they should be deleted any contents
+        # added by the task will have been removed first.
+        dirs = sorted(shareddirs, key=len)
+        # Must remove children first, which will have a longer path than the parent
+        for di in reversed(dirs):
+            f.write(di + "\n")
 
     # Append to the list of manifests for this PACKAGE_ARCH
 
@@ -481,9 +480,8 @@ def sstate_clean_cachefiles(d):
 def sstate_clean_manifest(manifest, d, canrace=False, prefix=None):
     import oe.path
 
-    mfile = open(manifest)
-    entries = mfile.readlines()
-    mfile.close()
+    with open(manifest) as mfile:
+        entries = mfile.readlines()
 
     for entry in entries:
         entry = entry.strip()
@@ -646,6 +644,7 @@ def sstate_package(ss, d):
     d.setVar("SSTATE_CURRTASK", ss['task'])
     bb.utils.remove(sstatebuild, recurse=True)
     bb.utils.mkdirhier(sstatebuild)
+    exit = False
     for state in ss['dirs']:
         if not os.path.exists(state[1]):
             continue
@@ -664,8 +663,11 @@ def sstate_package(ss, d):
                 if not link.startswith(tmpdir):
                     continue
                 bb.error("sstate found an absolute path symlink %s pointing at %s. Please replace this with a relative link." % (srcpath, link))
+                exit = True
         bb.debug(2, "Preparing tree %s for packaging at %s" % (state[1], sstatebuild + state[0]))
         bb.utils.rename(state[1], sstatebuild + state[0])
+    if exit:
+        bb.fatal("Failing task due to absolute path symlinks")
 
     workdir = d.getVar('WORKDIR')
     sharedworkdir = os.path.join(d.getVar('TMPDIR'), "work-shared")
@@ -722,7 +724,6 @@ def pstaging_fetch(sstatefetch, d):
     localdata = bb.data.createCopy(d)
 
     dldir = localdata.expand("${SSTATE_DIR}")
-    bb.utils.mkdirhier(dldir)
 
     localdata.delVar('MIRRORS')
     localdata.setVar('FILESPATH', dldir)
@@ -742,16 +743,19 @@ def pstaging_fetch(sstatefetch, d):
     if bb.utils.to_boolean(d.getVar("SSTATE_VERIFY_SIG"), False):
         uris += ['file://{0}.sig;downloadfilename={0}.sig'.format(sstatefetch)]
 
-    for srcuri in uris:
-        localdata.delVar('SRC_URI')
-        localdata.setVar('SRC_URI', srcuri)
-        try:
-            fetcher = bb.fetch2.Fetch([srcuri], localdata, cache=False)
-            fetcher.checkstatus()
-            fetcher.download()
+    with bb.utils.umask(bb.utils.to_filemode(d.getVar("OE_SHARED_UMASK"))):
+        bb.utils.mkdirhier(dldir)
 
-        except bb.fetch2.BBFetchException:
-            pass
+        for srcuri in uris:
+            localdata.delVar('SRC_URI')
+            localdata.setVar('SRC_URI', srcuri)
+            try:
+                fetcher = bb.fetch2.Fetch([srcuri], localdata, cache=False)
+                fetcher.checkstatus()
+                fetcher.download()
+
+            except bb.fetch2.BBFetchException:
+                pass
 
 def sstate_setscene(d):
     shared_state = sstate_state_fromvars(d)
@@ -770,9 +774,10 @@ sstate_task_prefunc[dirs] = "${WORKDIR}"
 python sstate_task_postfunc () {
     shared_state = sstate_state_fromvars(d)
 
-    omask = os.umask(0o002)
-    if omask != 0o002:
-       bb.note("Using umask 0o002 (not %0o) for sstate packaging" % omask)
+    shared_umask = bb.utils.to_filemode(d.getVar("OE_SHARED_UMASK"))
+    omask = os.umask(shared_umask)
+    if omask != shared_umask:
+       bb.note("Using umask %0o (not %0o) for sstate packaging" % (shared_umask, omask))
     sstate_package(shared_state, d)
     os.umask(omask)
 
@@ -837,15 +842,15 @@ python sstate_create_and_sign_package () {
 
     # Create the required sstate directory if it is not present.
     if not sstate_pkg.parent.is_dir():
-        with bb.utils.umask(0o002):
+        shared_umask = bb.utils.to_filemode(d.getVar("OE_SHARED_UMASK"))
+        with bb.utils.umask(shared_umask):
             bb.utils.mkdirhier(str(sstate_pkg.parent))
 
     if sign_pkg:
         from tempfile import TemporaryDirectory
         with TemporaryDirectory(dir=sstate_pkg.parent) as tmp_dir:
             tmp_pkg = Path(tmp_dir) / sstate_pkg.name
-            d.setVar("TMP_SSTATE_PKG", str(tmp_pkg))
-            bb.build.exec_func('sstate_archive_package', d)
+            sstate_archive_package(tmp_pkg, d)
 
             from oe.gpg_sign import get_signer
             signer = get_signer(d, 'local')
@@ -865,8 +870,7 @@ python sstate_create_and_sign_package () {
         from tempfile import NamedTemporaryFile
         with NamedTemporaryFile(prefix=sstate_pkg.name, dir=sstate_pkg.parent) as tmp_pkg_fd:
             tmp_pkg = tmp_pkg_fd.name
-            d.setVar("TMP_SSTATE_PKG", str(tmp_pkg))
-            bb.build.exec_func('sstate_archive_package',d)
+            sstate_archive_package(tmp_pkg, d)
             update_file(tmp_pkg, sstate_pkg)
             # update_file() may have renamed tmp_pkg, which must exist when the
             # NamedTemporaryFile() context handler ends.
@@ -874,32 +878,33 @@ python sstate_create_and_sign_package () {
 
 }
 
-# Shell function to generate a sstate package from a directory
-# set as SSTATE_BUILDDIR. Will be run from within SSTATE_BUILDDIR.
+# Function to generate a sstate package from the current directory.
 # The calling function handles moving the sstate package into the final
 # destination.
-sstate_archive_package () {
-	OPT="-cS"
-	ZSTD="zstd -${SSTATE_ZSTD_CLEVEL} -T${ZSTD_THREADS}"
-	# Use pzstd if available
-	if [ -x "$(command -v pzstd)" ]; then
-		ZSTD="pzstd -${SSTATE_ZSTD_CLEVEL} -p ${ZSTD_THREADS}"
-	fi
+def sstate_archive_package(sstate_pkg, d):
+    import subprocess
 
-	# Need to handle empty directories
-	if [ "$(ls -A)" ]; then
-		set +e
-		tar -I "$ZSTD" $OPT -f ${TMP_SSTATE_PKG} *
-		ret=$?
-		if [ $ret -ne 0 ] && [ $ret -ne 1 ]; then
-			exit 1
-		fi
-		set -e
-	else
-		tar -I "$ZSTD" $OPT --file=${TMP_SSTATE_PKG} --files-from=/dev/null
-	fi
-	chmod 0664 ${TMP_SSTATE_PKG}
-}
+    cmd = [
+        "tar",
+        "-I", d.expand("pzstd -${SSTATE_ZSTD_CLEVEL} -p${ZSTD_THREADS}"),
+        "-cS",
+        "-f", sstate_pkg,
+    ]
+
+    # tar refuses to create an empty archive unless told explicitly
+    files = sorted(os.listdir("."))
+    if not files:
+        files = ["--files-from=/dev/null"]
+
+    try:
+        subprocess.run(cmd + files, check=True)
+    except subprocess.CalledProcessError as e:
+        # Ignore error 1 as this is caused by files changing
+        # (link count increasing from hardlinks being created).
+        if e.returncode != 1:
+            raise
+
+    os.chmod(sstate_pkg, 0o664)
 
 
 python sstate_report_unihash() {
@@ -1031,7 +1036,7 @@ def sstate_checkhashes(sq_data, d, siginfo=False, currentcount=0, summary=True, 
 
             if progress:
                 bb.event.fire(bb.event.ProcessProgress(msg, next(cnt_tasks_done)), d)
-            bb.event.check_for_interrupts(d)
+            bb.event.check_for_interrupts()
 
         tasklist = []
         for tid in missed:
@@ -1291,7 +1296,7 @@ python sstate_eventhandler_reachablestamps() {
                 lines.remove(r)
                 removed = removed + 1
                 bb.event.fire(bb.event.ProcessProgress(msg, removed), d)
-                bb.event.check_for_interrupts(d)
+                bb.event.check_for_interrupts()
 
             bb.event.fire(bb.event.ProcessFinished(msg), d)
 
@@ -1361,7 +1366,7 @@ python sstate_eventhandler_stalesstate() {
                     bb.utils.remove(stamp)
                 removed = removed + 1
                 bb.event.fire(bb.event.ProcessProgress(msg, removed), d)
-                bb.event.check_for_interrupts(d)
+                bb.event.check_for_interrupts()
 
             bb.event.fire(bb.event.ProcessFinished(msg), d)
 }
