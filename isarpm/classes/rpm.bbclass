@@ -5,6 +5,35 @@ XCPNGDEV_BUILD_OPTS ?= ""
 
 RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_ISARPM}/${PN}"
 
+# adapted from yocto's package.bbclass
+python get_prauto() {
+    import oe.prservice
+
+    def get_do_package_hash(pn):
+        taskdepdata = d.getVar("BB_TASKDEPDATA", False)
+        for dep in taskdepdata:
+            if taskdepdata[dep][1] == "do_package" and taskdepdata[dep][0] == pn:
+                return taskdepdata[dep][6]
+        bb.fatal("package_hash not found")
+
+    try:
+        conn = oe.prservice.prserv_make_conn(d)
+        if conn is not None:
+            checksum = get_do_package_hash(d.getVar('PN'))
+
+            version = d.getVar("PF") # FIXME not really a version
+            pkgarch = d.getVar("PACKAGE_ARCH")
+
+            auto_pr = conn.getPR(version, pkgarch, checksum)
+            conn.close()
+    except Exception as e:
+        bb.fatal("Can NOT get PRAUTO, exception %s" %  str(e))
+    if auto_pr is None:
+        bb.fatal("Can NOT get PRAUTO from remote PR service")
+    d.setVar('PRAUTO', str(auto_pr))
+}
+do_package[prefuncs] += "get_prauto"
+
 # produces ${WORKDIR}/SRPMS and ${WORKDIR}/RPMS
 # FIXME: lacks control of parallel building?
 # FIXME: set _topdir to ${WORKDIR} to stop polluting source
@@ -25,6 +54,7 @@ do_package() {
         ${EXTRA_BUILD_FLAGS} \
         --local-repo="${BUILDDEPS_UPSTREAM}" --enablerepo="${BUILDDEPS_UPSTREAM_REPONAME}" \
         --output-dir="${WORKDIR}" \
+        --define "autorev ${@'+b${PRAUTO}' if ${PRAUTO} else ''}" \
         ${XCPNGDEV_BUILD_OPTS}
     createrepo_c --compatibility ${WORKDIR}/RPMS
 }

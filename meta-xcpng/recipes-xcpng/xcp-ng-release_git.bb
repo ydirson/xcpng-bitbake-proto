@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "10f06544571575fd70fa025f2094e4ca71568acc"
+SRCREV = "c24578b492c3e6463885cb069d2c6bf2dce1e804"
 
 # do not pull xcp-ng-release
 PACKAGE_NEEDS_BOOTSTRAP = "1"
