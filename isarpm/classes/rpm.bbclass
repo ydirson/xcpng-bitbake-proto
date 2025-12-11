@@ -54,7 +54,7 @@ do_package() {
         ${EXTRA_BUILD_FLAGS} \
         --local-repo="${BUILDDEPS_UPSTREAM}" --enablerepo="${BUILDDEPS_UPSTREAM_REPONAME}" \
         --output-dir="${WORKDIR}" \
-        --define "autorev ${@'+b${PRAUTO}' if ${PRAUTO} else ''}" \
+        --define "autorev ${@'+b${PRAUTO}' if ${PRAUTO} else ''}%{nil}" \
         ${XCPNGDEV_BUILD_OPTS}
     createrepo_c --compatibility ${WORKDIR}/RPMS
 }
