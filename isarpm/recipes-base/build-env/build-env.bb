@@ -7,7 +7,7 @@
 # for xcp-ng-build-env on another side.
 
 SRC_URI = "git://github.com/xcp-ng/xcp-ng-build-env;protocol=https;branch=ydi/9"
-SRCREV = "e2cc5fdad9a49afd79e429f67a4003cf219af8d9"
+SRCREV = "b51105d935ac1fd9adb4e6f03becea5d95365a09"
 
 # FIXME: this ought to be "${WORKDIR}/git", what's wrong with unpack?
 S = "${UNPACKDIR}/git"
@@ -27,6 +27,7 @@ do_create() {
     env XCPNG_OCI_RUNNER=podman ${S}/container/build.sh \
         --platform "${CONTAINER_ARCH}" \
         --isarpm \
+        --no-cache \
         --add-repo "release:${DEPLOY_DIR}/rpms/xcp-ng-release/RPMS" \
         9.0
 }
