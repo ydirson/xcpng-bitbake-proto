@@ -62,8 +62,6 @@ python base_do_unpack() {
         shutil.move(unpackdir + '/' + basedir, workdir + '/' + basedir)
 }
 
-EXPORT_FUNCTIONS do_fetch do_unpack
-
 def setup_hosttools_dir(dest, toolsvar, d, fatal=True):
     tools = d.getVar(toolsvar).split()
     origbbenv = d.getVar("BB_ORIGENV", False)
@@ -109,3 +107,5 @@ python base_eventhandler() {
         setup_hosttools_dir(d.getVar('HOSTTOOLS_DIR'), 'HOSTTOOLS', d)
         setup_hosttools_dir(d.getVar('HOSTTOOLS_DIR'), 'HOSTTOOLS_NONFATAL', d, fatal=False)
 }
+
+EXPORT_FUNCTIONS do_fetch do_unpack
