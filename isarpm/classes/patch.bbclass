@@ -5,6 +5,7 @@
 # Point to an empty file so any user's custom settings don't break things
 QUILTRCFILE ?= "${STAGING_ETCDIR_NATIVE}/quiltrc"
 
+# FIXME use ASSUME_PROVIDED instead
 HOSTPATCHTOOL ?= "0"
 
 PATCHDEPENDENCY = "${PATCHTOOL}-native:do_populate_sysroot"
