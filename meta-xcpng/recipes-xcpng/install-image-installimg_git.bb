@@ -33,7 +33,7 @@ do_build() {
         "9.0" \
         -- sudo sudo chown builder:builder /external/$(basename ${B})/install.img
 }
-do_build[depends] = "build-env:do_deploy build-env:do_create"
+do_build[depends] = "build-env:do_deploy build-env:do_create dnf-repo:do_deploy"
 addtask do_build after do_unpack
 
 # override bitbake_base.bbclass
