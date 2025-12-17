@@ -16,7 +16,6 @@ count on reusability yet.
   * can only generate part of the packages that make up XCP-ng, some
     of them not even having the XCP-ng patches added onto the newer
     upstream version
-  * no usable repository or installation ISO yet
   * x86_64-v2 arch only
 * tooling limitations
   * no caching of RPMs downloaded from upstream Alma/EPEL/Fedora
@@ -32,10 +31,10 @@ Setup a build environment:
 . oe-init-build-env
 ```
 
-Build all recipes (packages, repositories, images):
+Build everything (packages, repository) up to an installation image:
 
 ```
-bitbake world
+bitbake install-image-iso
 ```
 
 ## recipe classes
@@ -98,27 +97,9 @@ situation).
 
 ## dev cheat sheet
 
-### configuration
+You will find in the `conf/local.conf` installed in your build tree
+when it got created a few examples of tuning for some specific tasks,
+including:
 
-Those are example of stuff you may find useful to add in your `conf/local.conf`
-(we might move those to the `local.conf` template).
-
-Activate `ccache` for all (C/C++) package builds (one cache per package, outside of
-TMPDIR to avoid loosing it on `rm -rf tmp`:
-```
-XCPNGDEV_BUILD_OPTS:append = " --ccache=${TOPDIR}/ccache/${PF}"
-```
-
-Reduce number of concurrent jobs for `kernel` package:
-```
-XCPNGDEV_BUILD_OPTS:append:pn-kernel = " --define '_smp_mflags -j3'"
-```
-
-
-### recipes
-
-Take a commit from a local working clone:
-
-```
-SRC_URI = "git://localhost/home/user/src/xcpng/build-env/;protocol=file;nobranch=1"
-```
+- activation of `ccache`
+- building from a local `xcp-ng-rpms` commit to test it before pushing it
