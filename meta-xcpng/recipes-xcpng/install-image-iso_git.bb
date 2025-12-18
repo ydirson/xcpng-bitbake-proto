@@ -10,8 +10,8 @@ EXTRA_UPSTREAM_DEPENDS:x86-64-v2 = " \
 https://epel.repo.almalinux.org/10/x86_64_v2/Packages/genisoimage-1.1.11-58.el10_1.alma_altarch.x86_64_v2.rpm \
   https://epel.repo.almalinux.org/10/x86_64_v2/Packages/libusal-1.1.11-58.el10_1.alma_altarch.x86_64_v2.rpm \
 https://epel.repo.almalinux.org/10/x86_64_v2/Packages/libfaketime-0.9.12-4.el10_1.alma_altarch.x86_64_v2.rpm \
-http://fr2.rpmfind.net/linux/almalinux/10.0/BaseOS/x86_64_v2/os/Packages/syslinux-6.04-0.30.el10.alma.1.x86_64_v2.rpm \
-  http://fr2.rpmfind.net/linux/almalinux/10.0/BaseOS/x86_64_v2/os/Packages/syslinux-nonlinux-6.04-0.30.el10.alma.1.noarch.rpm \
+https://vault.almalinux.org/10.0/BaseOS/x86_64_v2/os/Packages/syslinux-6.04-0.30.el10.alma.1.x86_64_v2.rpm \
+  https://vault.almalinux.org/10.0/BaseOS/x86_64_v2/os/Packages/syslinux-nonlinux-6.04-0.30.el10.alma.1.noarch.rpm \
 "
 
 S = "${UNPACKDIR}/git"
