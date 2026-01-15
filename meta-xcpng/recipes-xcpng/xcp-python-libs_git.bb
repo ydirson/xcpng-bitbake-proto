@@ -1,5 +1,5 @@
 inherit xcp-ng-rpm
 
-SRCREV = "ff6f8c81b019a21aed432f691ccf0e36c1e01906"
+SRCREV = "fc50b2ec831fdc67a256397fc82c57526efe268c"
 
 RDEPENDS = "biosdevname"
