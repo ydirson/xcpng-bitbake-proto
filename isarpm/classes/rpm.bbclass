@@ -52,14 +52,14 @@ do_package() {
         --no-network --no-update --disablerepo="*" \
         --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
         ${EXTRA_BUILD_FLAGS} \
-        --local-repo="${BUILDDEPS_UPSTREAM}" --enablerepo="${BUILDDEPS_UPSTREAM_REPONAME}" \
         --output-dir="${WORKDIR}" \
         --define "autorev ${@'+b${PRAUTO}' if ${PRAUTO} else ''}%{nil}" \
         ${XCPNGDEV_BUILD_OPTS}
     createrepo_c --compatibility ${WORKDIR}/RPMS
 }
 
-addtask do_package after do_fetch_upstream_builddeps
+addtask do_package after do_collect_managed_builddeps
+do_package[depends] = "build-env:do_deploy build-env:${@'do_create_bootstrap' if ${PACKAGE_NEEDS_BOOTSTRAP} else 'do_create' }"
 
 SSTATETASKS += "do_package"
 do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"
@@ -104,67 +104,16 @@ python() {
 }
 
 
-RDEPS_UPSTREAM_REPONAME = "rdeps-upstream"
-RDEPS_UPSTREAM = "${WORKDIR}/${RDEPS_UPSTREAM_REPONAME}"
-
-# FIXME: find a way to collect errors from all RPMs in a single run, rather
-# than stopping on first error
-do_fetch_upstream_rdeps() {
-    # FIXME should be an anynomous python block not copypasta
-    case ${PACKAGE_NEEDS_BOOTSTRAP} in
-    0) maybe_bootstrap=--isarpm ;;
-    1) maybe_bootstrap=--bootstrap ;;
-    esac
-
-    URLS=$(
-        set -o pipefail # FIXME bashism?
-        rpms=""
-        for rpm in ${WORKDIR}/RPMS/*/*.rpm; do
-            rpms="$rpms $(basename $rpm .rpm)"
-        done
-        env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
-                $maybe_bootstrap \
-                --platform "${CONTAINER_ARCH}" \
-                --debug \
-                --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
-                --local-repo="${RDEPS_MANAGED}" --enablerepo="${RDEPS_MANAGED_REPONAME}" \
-                ${EXTRA_RUN_FLAGS} \
-                --no-update --disablerepo=xcpng \
-            "9.0" \
-            -- dnf download --quiet --resolve --urls $rpms
-    )
-
-    rm -rf "${RDEPS_UPSTREAM}"
-    mkdir -p "${RDEPS_UPSTREAM}"
-    for url in $URLS; do
-        case "$url" in
-            file://*) continue ;; # skip files we provide in local repos, including rpms from this recipe
-        esac
-        rpm=$(basename "$url")
-        if [ ! -e "${UPSTREAM_RPM_CACHEDIR}/$rpm" ]; then
-            mkdir -p "${UPSTREAM_RPM_CACHEDIR}"
-            curl --silent --show-error --fail --location \
-                 --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
-        fi
-        cp -l "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${RDEPS_UPSTREAM}/"
-    done
-}
-do_fetch_upstream_rdeps[network] = "1"
-do_fetch_upstream_rdeps[depends] = "build-env:do_deploy build-env:${@'do_create_bootstrap' if ${PACKAGE_NEEDS_BOOTSTRAP} else 'do_create' }"
-
-addtask do_fetch_upstream_rdeps after do_collect_managed_rdeps
-
-
 # FIXME: should be removed by do_clean?
 do_deploy() {
     rm -rf "${RECIPE_DEPLOY_DIR}"
     mkdir -p "${RECIPE_DEPLOY_DIR}"
-    cp -la "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RDEPS_MANAGED}" "${RDEPS_UPSTREAM}" "${RECIPE_DEPLOY_DIR}/"
+    cp -la "${WORKDIR}/SRPMS" "${WORKDIR}/RPMS" "${RDEPS_MANAGED}" "${RECIPE_DEPLOY_DIR}/"
     if [ -n "${EXTRA_UPSTREAM_RDEPENDS}" ]; then
         cp -la "${RDEPENDS_EXTRA}" "${RECIPE_DEPLOY_DIR}/"
     fi
 }
-addtask do_deploy after do_fetch_upstream_rdeps
+addtask do_deploy after do_collect_managed_rdeps
 
 
 do_test() {
@@ -176,7 +125,6 @@ do_test() {
                 --no-network --no-update --disablerepo="*" \
                 --local-repo="${PN}:${WORKDIR}/RPMS" --enablerepo="${PN}" \
                 --local-repo="${PN}-rdeps-managed:${RDEPS_MANAGED}" --enablerepo="${PN}-rdeps-managed" \
-                --local-repo="${PN}-rdeps-upstream:${RDEPS_UPSTREAM}" --enablerepo="${PN}-rdeps-upstream" \
                 ${EXTRA_RUN_FLAGS} \
             "9.0" \
             -- sudo dnf install -y $(basename $rpm .rpm)
