@@ -9,5 +9,5 @@ SRC_URI = "git://github.com/xcp-ng-rpms/${REPONAME};protocol=https;nobranch=1"
 # FIXME: this ought to be "${WORKDIR}/git", what's wrong with unpack?
 S = "${UNPACKDIR}/git"
 
-# base dependencies for everyone
-DEPENDS = "xcp-ng-release"
+# (no) base dependencies for everyone
+DEPENDS = ""
