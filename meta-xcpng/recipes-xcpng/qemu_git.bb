@@ -1,13 +1,12 @@
 inherit xcp-ng-rpm
 
-SRCREV = "42501508cb3fce9f7eeea9db278825376a4a5b5e"
+SRCREV = "7eb9c8dbfcae5b18f63dac38876ce8043df15a0e"
 
 DEPENDS += "xen"
 
 RDEPENDS = " \
   xen \
   xcp-clipboardd \
-  xengt-userspace \
 "
 
 # in EPEL 10.1
