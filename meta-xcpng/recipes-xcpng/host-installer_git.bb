@@ -1,6 +1,6 @@
 inherit xcp-ng-rpm
 
-SRCREV = "5d1719617698e0026828f31124c5df9ed334ca1c"
+SRCREV = "39d04e27349aa73ddfdad0b660253401e281a772"
 
 DEPENDS += "xcp-python-libs"
 

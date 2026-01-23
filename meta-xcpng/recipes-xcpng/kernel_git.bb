@@ -1,44 +1,7 @@
 inherit xcp-ng-rpm
 
 SRCREV = "760ae9c7a6a0fff1162aa0bba75b07ad7bb2b46d"
+# FIXME why does kabichk with "required file not found"?
 XCPNGDEV_BUILD_OPTS = " \
-  --rpmbuild-opts='--with baseonly' \
-  --rpmbuild-opts='--without debuginfo' \
   --rpmbuild-opts='--without kabichk' \
-  --rpmbuild-opts='--without doc' \
 "
-
-# FIXME: should be infered from `sources` by specific class, use MIRRORS, etc.
-# sed 's,.*(\(.*\)) = \(.*\),https://sources.almalinux.org/\2;unpack=0;subdir=git;downloadfilename=\1;name=\1 \\,' sources
-SRC_URI += " \
-https://sources.almalinux.org/e04809394f4472c17e86d7024dee34f03fb68e82a85502fd5b00535202c72e57626a8376b2cf991b7e1e46404aa5ab8d189ebf320e0dd37d49e7efbc925c7a2e;unpack=0;subdir=git;downloadfilename=fedoraimaca.x509;name=fedoraimaca.x509 \
-https://sources.almalinux.org/6fee4a7489cd6ee6048a2299bb42052b0dad0f40d9edd6f9412286728ddc25e5fd491605c7f176284cce339660d0d2585c02e20b3460ebdef08152a70cb81c33;unpack=0;subdir=git;downloadfilename=kernel-abi-stablelists-6.12.0-55.20.1.el10_0.tar.xz;name=kernel-abi-stablelists-6.12.0-55.20.1.el10_0.tar.xz \
-https://sources.almalinux.org/95e56376dcb6f68300626e83bc60ca36443866f04e600f0a3eeb459435ee1f1cc3287d578209d5c1522fa0cc3e5a0c7999d573e46c9070bc0001e49c9fb8f9aa;unpack=0;subdir=git;downloadfilename=kernel-kabi-dw-6.12.0-55.20.1.el10_0.tar.xz;name=kernel-kabi-dw-6.12.0-55.20.1.el10_0.tar.xz \
-https://sources.almalinux.org/c15292a3a808ba39d968a97fcf6805cea63e773ba00e0d78e77bd0f2c166e40ba053bb88ea6fa6a83b05afce538895f6d4f326dcec47b6f05fdc0516ae52ae43;unpack=0;subdir=git;downloadfilename=linux-6.12.0-55.20.1.el10_0.tar.xz;name=linux-6.12.0-55.20.1.el10_0.tar.xz \
-https://sources.almalinux.org/b42f836e1cfa07890cb6ca13de9c3950e306c9ec7686c4c09f050bb68869f5d82962b2cd5f3aa0eb7a0f3a3ae54e9c480eafbac5df53aa92c295ff511a8c59fe;unpack=0;subdir=git;downloadfilename=nvidiagpuoot001.x509;name=nvidiagpuoot001.x509 \
-https://sources.almalinux.org/123c26c1d698cc8523845c6e1103b9c72abf855acd225d37baf1f3388a47f912166d6d786fb367fe46de39e011b586ad7f3963aa2e8923da30a6ea9ae0d76ad3;unpack=0;subdir=git;downloadfilename=olima1.x509;name=olima1.x509 \
-https://sources.almalinux.org/3a779415fad29d6f7250ec97ab1f0a5eb62c351b724feee06b22e17f065bf74a558f32cc524d3222c4485635ae5b9cd5287855c94010fe743b51a4d954340c4c;unpack=0;subdir=git;downloadfilename=olimaca1.x509;name=olimaca1.x509 \
-https://sources.almalinux.org/eb2c2d342680d4c3453d3e4f30abdd1f6b0e98292e1be0410d0163afd01552a863b70ffaabeecd6e3981cd4d167198091a837c7d70f96a3a06de2d28b3355308;unpack=0;subdir=git;downloadfilename=redhatsecureboot501.cer;name=redhatsecureboot501.cer \
-https://sources.almalinux.org/0285fd7cb1755b399cdd2d848d9eba51b72ef2dd8ea5d40d7061c29685a12e15bf8eb083cb2f8c14eb69d248cb3af2c2332e06f80e19ed4cc029070198c0d522;unpack=0;subdir=git;downloadfilename=redhatsecurebootca5.cer;name=redhatsecurebootca5.cer \
-https://sources.almalinux.org/ebf56d821acb5c17bb1842a8ddc8f1014a9e112ef7569531eedbabc82c6b5740e2709f96c5ebc87ba837e8085d0b090a9e63ddd06507692b41dae54a2b48d21b;unpack=0;subdir=git;downloadfilename=rheldup3.x509;name=rheldup3.x509 \
-https://sources.almalinux.org/910b39fe16c2d8675c45c360797e6fb4a61d423b2c45a5a49aabc29a21b8dca44d50772353c3b4e557af25a2253d2ad2a2a3825a07cab556fd4eb154013c90de;unpack=0;subdir=git;downloadfilename=rhelima.x509;name=rhelima.x509 \
-https://sources.almalinux.org/8ee9a0107a7fe12078c1a82e4accbecca4d1246eadc60692880b5c2e6617c2ace27114d79ec6cc5fef11296fa11765145fcfbd8e2092fa96c56b13af925e5444;unpack=0;subdir=git;downloadfilename=rhelima_centos.x509;name=rhelima_centos.x509 \
-https://sources.almalinux.org/164411c37d48de2ed59c0c5d44eb9f84340cfb4e209c32370d669304a3457bf2663ebf90bc5e5a592c9899755a08015b9284db6a55237f6aa67bc10e5c04b325;unpack=0;subdir=git;downloadfilename=rhelimaca1.x509;name=rhelimaca1.x509 \
-https://sources.almalinux.org/2dac65723dca562dabdf503f44fb70052e6fb3569d257f6f59d13275408a91b400ced1f42b37bac29bf5d73c3c3a4f96c7819832d0cbe85134a989cbbf863d7b;unpack=0;subdir=git;downloadfilename=rhelkpatch1.x509;name=rhelkpatch1.x509 \
-"
-
-# sed 's,.*(\(.*\)) = \(.*\),SRC_URI[\1.sha512sum] = "\2",' sources
-SRC_URI[fedoraimaca.x509.sha512sum] = "e04809394f4472c17e86d7024dee34f03fb68e82a85502fd5b00535202c72e57626a8376b2cf991b7e1e46404aa5ab8d189ebf320e0dd37d49e7efbc925c7a2e"
-SRC_URI[kernel-abi-stablelists-6.12.0-55.20.1.el10_0.tar.xz.sha512sum] = "6fee4a7489cd6ee6048a2299bb42052b0dad0f40d9edd6f9412286728ddc25e5fd491605c7f176284cce339660d0d2585c02e20b3460ebdef08152a70cb81c33"
-SRC_URI[kernel-kabi-dw-6.12.0-55.20.1.el10_0.tar.xz.sha512sum] = "95e56376dcb6f68300626e83bc60ca36443866f04e600f0a3eeb459435ee1f1cc3287d578209d5c1522fa0cc3e5a0c7999d573e46c9070bc0001e49c9fb8f9aa"
-SRC_URI[linux-6.12.0-55.20.1.el10_0.tar.xz.sha512sum] = "c15292a3a808ba39d968a97fcf6805cea63e773ba00e0d78e77bd0f2c166e40ba053bb88ea6fa6a83b05afce538895f6d4f326dcec47b6f05fdc0516ae52ae43"
-SRC_URI[nvidiagpuoot001.x509.sha512sum] = "b42f836e1cfa07890cb6ca13de9c3950e306c9ec7686c4c09f050bb68869f5d82962b2cd5f3aa0eb7a0f3a3ae54e9c480eafbac5df53aa92c295ff511a8c59fe"
-SRC_URI[olima1.x509.sha512sum] = "123c26c1d698cc8523845c6e1103b9c72abf855acd225d37baf1f3388a47f912166d6d786fb367fe46de39e011b586ad7f3963aa2e8923da30a6ea9ae0d76ad3"
-SRC_URI[olimaca1.x509.sha512sum] = "3a779415fad29d6f7250ec97ab1f0a5eb62c351b724feee06b22e17f065bf74a558f32cc524d3222c4485635ae5b9cd5287855c94010fe743b51a4d954340c4c"
-SRC_URI[redhatsecureboot501.cer.sha512sum] = "eb2c2d342680d4c3453d3e4f30abdd1f6b0e98292e1be0410d0163afd01552a863b70ffaabeecd6e3981cd4d167198091a837c7d70f96a3a06de2d28b3355308"
-SRC_URI[redhatsecurebootca5.cer.sha512sum] = "0285fd7cb1755b399cdd2d848d9eba51b72ef2dd8ea5d40d7061c29685a12e15bf8eb083cb2f8c14eb69d248cb3af2c2332e06f80e19ed4cc029070198c0d522"
-SRC_URI[rheldup3.x509.sha512sum] = "ebf56d821acb5c17bb1842a8ddc8f1014a9e112ef7569531eedbabc82c6b5740e2709f96c5ebc87ba837e8085d0b090a9e63ddd06507692b41dae54a2b48d21b"
-SRC_URI[rhelima.x509.sha512sum] = "910b39fe16c2d8675c45c360797e6fb4a61d423b2c45a5a49aabc29a21b8dca44d50772353c3b4e557af25a2253d2ad2a2a3825a07cab556fd4eb154013c90de"
-SRC_URI[rhelima_centos.x509.sha512sum] = "8ee9a0107a7fe12078c1a82e4accbecca4d1246eadc60692880b5c2e6617c2ace27114d79ec6cc5fef11296fa11765145fcfbd8e2092fa96c56b13af925e5444"
-SRC_URI[rhelimaca1.x509.sha512sum] = "164411c37d48de2ed59c0c5d44eb9f84340cfb4e209c32370d669304a3457bf2663ebf90bc5e5a592c9899755a08015b9284db6a55237f6aa67bc10e5c04b325"
-SRC_URI[rhelkpatch1.x509.sha512sum] = "2dac65723dca562dabdf503f44fb70052e6fb3569d257f6f59d13275408a91b400ced1f42b37bac29bf5d73c3c3a4f96c7819832d0cbe85134a989cbbf863d7b"
