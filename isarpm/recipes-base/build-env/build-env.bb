@@ -6,8 +6,8 @@
 # side, which the rpm class can rely on, and specific implementation
 # for xcp-ng-build-env on another side.
 
-SRC_URI = "git://github.com/xcp-ng/xcp-ng-build-env;protocol=https;branch=ydi/9"
-SRCREV = "b51105d935ac1fd9adb4e6f03becea5d95365a09"
+SRC_URI = "git://github.com/xcp-ng/xcp-ng-build-env;protocol=https;nobranch=1"
+SRCREV = "dc49f45bd5f0c9c7f95832a36724b771019c92a9"
 
 # FIXME: this ought to be "${WORKDIR}/git", what's wrong with unpack?
 S = "${UNPACKDIR}/git"
@@ -27,7 +27,6 @@ do_create() {
     env XCPNG_OCI_RUNNER=podman ${S}/container/build.sh \
         --platform "${CONTAINER_ARCH}" \
         --isarpm \
-        --no-cache \
         --add-repo "release:${DEPLOY_DIR}/rpms/xcp-ng-release/RPMS" \
         9.0
 }

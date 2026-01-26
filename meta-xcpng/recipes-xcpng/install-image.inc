@@ -2,4 +2,4 @@
 inherit rpm-depends
 
 SRC_URI = "git://github.com/xcp-ng/create-install-image;protocol=https;nobranch=1"
-SRCREV = "f1aa3847e34f367eb8aec92f0873ec4bf614cdf0"
+SRCREV = "11414068124b019a1141c0452e740fd422ecdf3b"
