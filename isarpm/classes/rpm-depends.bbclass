@@ -1,8 +1,6 @@
 DEPENDS ?= ""
 PACKAGE_NEEDS_BOOTSTRAP ?= "0"
 
-DEPLOY_DIR_ISARPM = "${DEPLOY_DIR}/rpms"
-
 UPSTREAM_RPM_CACHEDIR = "${DL_DIR}/upstream"
 
 # FIXME: xcp-ng-dev commands should be provided by build-env.class
@@ -61,59 +59,3 @@ python() {
     else:
         d.setVar("EXTRA_BUILD_FLAGS", "")
 }
-
-
-BUILDDEPS_UPSTREAM_REPONAME = "bdeps-upstream"
-BUILDDEPS_UPSTREAM = "${WORKDIR}/${BUILDDEPS_UPSTREAM_REPONAME}"
-
-# FIXME: managed RPM pulled by an upstream one will be missed
-# FIXME: may need "rpmbuild -bd" as well for dynamic builddeps
-do_fetch_upstream_builddeps() {
-    BASE_S=$(basename ${S})
-    SPEC=SPECS/${PN}.spec
-    SOURCES=SOURCES
-    [ -r "${S}/$SPEC" ] || { SPEC=${PN}.spec; SOURCES=.; }
-    [ -r "${S}/$SPEC" ] || bbfatal "Cannot find ${PN}.spec"
-
-    # FIXME should be an anynomous python block not copypasta
-    case ${PACKAGE_NEEDS_BOOTSTRAP} in
-    0) maybe_bootstrap=--isarpm ;;
-    1) maybe_bootstrap=--bootstrap ;;
-    esac
-
-    URLS=$(
-        env XCPNG_OCI_RUNNER=podman ${XCPNGDEV} container run \
-                $maybe_bootstrap \
-                --platform "${CONTAINER_ARCH}" \
-                --debug \
-                --local-repo="${BUILDDEPS_MANAGED}" --enablerepo="${BUILDDEPS_MANAGED_REPONAME}" \
-                ${EXTRA_BUILD_FLAGS} \
-                --no-update --disablerepo=xcpng \
-                -d "${S}" \
-                -v ${LAYERDIR_isarpm}/libexec/get-build-deps-urls.sh:/external/get-build-deps-urls.sh \
-            "9.0" \
-            -- /external/get-build-deps-urls.sh /external/${BASE_S}/${SPEC} /external/${BASE_S}/$SOURCES /external/${BASE_S}
-    )
-
-    rm -rf "${BUILDDEPS_UPSTREAM}"
-    mkdir -p "${BUILDDEPS_UPSTREAM}"
-    for url in $URLS; do
-        case "$url" in
-            file://*) continue ;; # skip files we provide in local repos
-        esac
-        rpm=$(basename "$url")
-        if [ ! -e "${UPSTREAM_RPM_CACHEDIR}/$rpm" ]; then
-            mkdir -p "${UPSTREAM_RPM_CACHEDIR}"
-            curl --silent --show-error --fail --location \
-                 --output-dir "${UPSTREAM_RPM_CACHEDIR}" --remote-name "$url"
-        fi
-        cp -l "${UPSTREAM_RPM_CACHEDIR}/$rpm" "${BUILDDEPS_UPSTREAM}/"
-    done
-}
-do_fetch_upstream_builddeps[network] = "1"
-do_fetch_upstream_builddeps[depends] = "build-env:do_deploy build-env:${@'do_create_bootstrap' if ${PACKAGE_NEEDS_BOOTSTRAP} else 'do_create' }"
-
-addtask do_fetch_upstream_builddeps after do_collect_managed_builddeps
-
-# SSTATETASKS += "do_fetch_upstream_builddeps"
-# do_package[sstate-plaindirs] = "${WORKDIR}/SRPMS ${WORKDIR}/RPMS"

@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import itertools
+import logging
+import tempfile
+
+import libdnf5
+
+V = '10.0'
+
+logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.DEBUG)
+
+db_src = libdnf5.base.Base()
+db_bin = libdnf5.base.Base()
+
+with (tempfile.TemporaryDirectory() as persistdir,
+      tempfile.TemporaryDirectory() as reposdir,
+      tempfile.TemporaryDirectory() as system_cachedir,
+      tempfile.TemporaryDirectory() as varsdir):
+    for db in [db_src, db_bin]:
+        conf = db.get_config()
+        # avoid any system configuration
+        conf.config_file_path = '/dev/null'
+        conf.reposdir = reposdir
+        conf.persistdir = persistdir
+        conf.system_cachedir = system_cachedir
+        conf.varsdir = varsdir
+
+        # necessary to solve deps against concrete files
+        # FIXME: is it still true?
+        conf.optional_metadata_types += ('load_filelists',)
+
+        db.setup()
+
+    bin_sack = db_bin.get_repo_sack()
+    src_sack = db_src.get_repo_sack()
+    for section in ['BaseOS', 'AppStream', 'CRB', 'devel']:
+        bin_repo = bin_sack.create_repo(section)
+        bin_repo.get_config().baseurl = f"https://vault.almalinux.org/{V}/{section}/x86_64_v2/os/"
+        src_repo = src_sack.create_repo(section)
+        src_repo.get_config().baseurl = f"https://vault.almalinux.org/{V}/{section}/Source/"
+    bin_sack.load_repos(libdnf5.repo.Repo.Type_AVAILABLE)
+    src_sack.load_repos(libdnf5.repo.Repo.Type_AVAILABLE)
+
+    q = libdnf5.rpm.PackageQuery(db_src)
+    q.filter_latest_evr(1)
+    rpms_src: list[dnf.package.Package] = list(q)
+    print(f"#src={len(rpms_src)}")
+
+    pkg = rpms_src[0]
+    print(f"# src: {pkg}")
+    print(f'PN = "{pkg.get_name()}"')
+    print(f'PE = "{pkg.get_epoch()}"')
+    print(f'PV = "{pkg.get_version()}"')
+    print(f'PR = "{pkg.get_release()}"')
+
+    q = libdnf5.rpm.PackageQuery(db_bin)
+    q.filter_sourcerpm(f"{pkg}.rpm")
+    rpms: list[dnf.package.Package] = list(q)
+    print(f'PACKAGES = "{' '.join(p.get_name() for p in rpms)}"')
+    for p in rpms:
+        # FIXME (schemes=["https", "http", "file"]) ?
+        print(f'URI_{p.get_name()} = "{p.get_remote_locations()[0]};unpack=0"')
+        for reldep in itertools.chain(p.get_requires(), p.get_requires_pre()):
+            print(f"# {reldep}")
+            g = libdnf5.base.Goal(db_bin)
+            g.add_install(str(reldep))
+            txn = g.resolve()
+            for tspkg in txn.get_transaction_packages():
+                print(tspkg.get_package().get_nevra(), ": ",
+                      libdnf5.base.transaction.transaction_item_action_to_string(tspkg.get_action()))
+        #print(f'RDEPENDS_{p.name} = "{p.requires};unpack=0"')
