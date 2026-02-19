@@ -1,12 +1,13 @@
 inherit xcp-ng-rpm
 
-SRCREV = "91ba6e2642f12ab19fdb491380d16cee64925c7d"
+SRCREV = "c28dde1f29eb0e2f0ab033de9dbf83da1981710a"
 
 DEPENDS += "xcp-python-libs"
 
 RDEPENDS = " \
 xcp-python-libs \
 biosdevname \
+dmv-utils \
 "
 
 # FIXME: newer syslinux seems to work differently, and newer grub is named differently
