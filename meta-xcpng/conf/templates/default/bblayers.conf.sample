@@ -3,5 +3,6 @@ BBFILES ?= ""
 
 BBLAYERS ?= " \
   ##OEROOT##/meta \
+  ##OEROOT##/meta-almalinux \
   ##OEROOT##/meta-xcpng \
   "
