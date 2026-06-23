@@ -123,7 +123,7 @@ python base_eventhandler() {
 }
 
 addtask build after do_unpack
-do_build[deptask] += "do_build"
+do_build[deptask] += "do_deploy"
 do_build () {
 	:
 }

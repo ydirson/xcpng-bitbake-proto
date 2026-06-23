@@ -7,8 +7,6 @@ inherit rpm-base
 
 RECIPE_DEPLOY_DIR = "${DEPLOY_DIR_RPMS}/${PN}"
 
-RDEPENDS ?= ""
-
 do_build() {
     rm -rf "${WORKDIR}/RPMS" "${WORKDIR}/SRPMS"
     mkdir -p "${WORKDIR}/RPMS" "${WORKDIR}/SRPMS"
